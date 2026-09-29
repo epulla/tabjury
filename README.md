@@ -18,7 +18,7 @@ TabJury reuses open tabs, flags duplicate and inactive tabs, and recycles them a
 - Matches URLs after stripping tracking parameters and ignoring trailing slashes; hashes stay by default.
 - Allows intentional duplicates when the existing tab is active in the same window, opened the link, was used <30s ago, or you re-open within 15s after a reuse ("two strikes").
 - Protects the active tab, pinned tabs, tabs playing audio, tabs in groups, tabs used in the last 5 minutes, and domains listed in Settings.
-- Auto actions wait 60s, handle at most 5 tabs per scan, run in dry-run mode for 24h, and send closed tabs to Recently closed.
+- Auto actions wait 60s, handle at most 5 tabs per scan, start with a 24h trial period where they are only logged, and send closed tabs to Recently closed.
 
 ## Known limits
 

@@ -67,13 +67,14 @@ export default function App() {
                   aria-pressed={settings.mode === mode}
                   key={mode}
                   title={`${MODES[mode].name}: ${MODES[mode].blurb}`}
-                  disabled={mode === 'custom' && settings.mode !== 'custom'}
                   style={
                     {
                       '--seg-color': mode === 'custom' ? accentFor(settings) : MODES[mode].color,
                     } as CSSProperties
                   }
-                  onClick={() => mode !== 'custom' && setSettings(applyPreset(settings, mode))}
+                  onClick={() =>
+                    setSettings(mode === 'custom' ? { ...settings, mode } : applyPreset(settings, mode))
+                  }
                 >
                   {mode.charAt(0).toUpperCase() + mode.slice(1)}
                 </button>
@@ -104,6 +105,7 @@ export default function App() {
                       {modeDetails(mode === 'custom' ? settings : PRESETS[mode]).map((detail) => (
                         <li key={detail}>{detail}</li>
                       ))}
+                      {mode === 'custom' && <li>Adjust rules in Settings</li>}
                     </ul>
                   </div>
                 ))}
@@ -112,20 +114,29 @@ export default function App() {
             {autoOn(settings) &&
               (enabledAt && now - enabledAt < settings.auto.dryRunHours * 3_600_000 ? (
                 <p className="mt-2 rounded-lg bg-[color-mix(in_srgb,var(--accent)_8%,transparent)] p-2 text-xs">
-                  Dry run: {Math.ceil((settings.auto.dryRunHours * 3_600_000 - now + enabledAt) / 3_600_000)}h
-                  left — actions are only logged{' '}
+                  Trial period:{' '}
+                  {Math.ceil((settings.auto.dryRunHours * 3_600_000 - now + enabledAt) / 3_600_000)}h left.
+                  TabJury won't close anything yet; it only notes what it would close in History.{' '}
                   <button
                     type="button"
                     className="btn ml-1"
-                    onClick={() => setEnabledAt(now - settings.auto.dryRunHours * 3_600_000 - 1)}
+                    onClick={() =>
+                      window.confirm(
+                        'TabJury will start closing and discarding tabs automatically. Continue?',
+                      ) && setEnabledAt(now - settings.auto.dryRunHours * 3_600_000 - 1)
+                    }
                   >
-                    Skip dry run
+                    Start now
                   </button>
                 </p>
               ) : (
                 pending.length > 0 && (
                   <p className="mt-2 rounded-lg bg-[color-mix(in_srgb,var(--accent)_8%,transparent)] p-2 text-xs">
-                    {pending.length} tabs scheduled for auto-action in ≤{settings.auto.graceSeconds}s
+                    {`${pending.length} tabs will be tidied up ${
+                      settings.auto.graceSeconds <= 60
+                        ? 'in about a minute'
+                        : `in about ${Math.ceil(settings.auto.graceSeconds / 60)} minutes`
+                    }`}
                   </p>
                 )
               ))}

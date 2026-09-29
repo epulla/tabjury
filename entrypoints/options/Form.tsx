@@ -16,7 +16,7 @@ export default function Form({
           {(['lite', 'normal', 'ultra', 'custom'] as Mode[]).map((mode) => (
             <label
               key={mode}
-              className={`rounded-lg border border-l-4 p-3 cursor-pointer ${mode === 'custom' && settings.mode !== 'custom' ? 'opacity-60 cursor-not-allowed' : ''}`}
+              className="rounded-lg border border-l-4 p-3 cursor-pointer"
               style={{
                 borderLeftColor: mode === 'custom' ? SWATCHES[settings.customColor] : MODES[mode].color,
                 background: `color-mix(in srgb, ${mode === 'custom' ? SWATCHES[settings.customColor] : MODES[mode].color} 8%, white)`,
@@ -31,11 +31,8 @@ export default function Form({
                 name="mode"
                 value={mode}
                 checked={settings.mode === mode}
-                disabled={mode === 'custom' && settings.mode !== 'custom'}
                 onChange={() =>
-                  mode === 'custom'
-                    ? undefined
-                    : setSettings(applyPreset(settings, mode as Exclude<Mode, 'custom'>))
+                  setSettings(mode === 'custom' ? { ...settings, mode } : applyPreset(settings, mode))
                 }
               />
               <strong>
@@ -50,7 +47,7 @@ export default function Form({
               {mode === 'custom' && (
                 <>
                   <span className="mt-1 block text-xs text-gray-500">
-                    Change any rule below to switch to Your Court.
+                    Pick this, then adjust any rule below.
                   </span>
                   <div role="group" aria-label="Custom color" className="mt-2 flex gap-1.5">
                     {Object.entries(SWATCHES).map(([name, hex]) => (
@@ -362,7 +359,7 @@ export default function Form({
       </fieldset>
 
       <fieldset className="mt-6">
-        <legend className="font-semibold text-[var(--accent)]">Auto-action safety</legend>
+        <legend className="font-semibold text-[var(--accent)]">Auto-cleanup safety</legend>
         <label className="mt-2 block">
           Wait before acting (seconds){' '}
           <input
@@ -392,7 +389,7 @@ export default function Form({
           />
         </label>
         <label className="mt-2 block">
-          Dry run for (hours) after enabling auto actions{' '}
+          Trial period before auto-cleanup starts (hours){' '}
           <input
             className="field ml-2 w-20"
             type="number"
