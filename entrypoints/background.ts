@@ -23,4 +23,10 @@ export default defineBackground(() => {
       await pausedUntil.setValue(until > Date.now() ? 0 : Date.now() + 15 * 60_000);
     }
   });
+  browser.runtime.onInstalled.addListener((details) => {
+    if (details.reason === 'install')
+      browser.tabs.create({
+        url: browser.runtime.getURL('/onboarding.html' as never),
+      });
+  });
 });
