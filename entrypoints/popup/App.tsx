@@ -1,20 +1,33 @@
 import { useState } from 'react';
-import { settingsItem, pausedUntil, lastDedupe } from '@/src/bg/state';
+import {
+  settingsItem,
+  pausedUntil,
+  lastDedupe,
+  autoEnabledAt,
+  historyItem,
+  pendingActions,
+} from '@/src/bg/state';
 import { findingsItem, scan } from '@/src/bg/scanner';
+import { autoOn } from '@/src/bg/actions';
 import { binItem } from '@/src/bg/bin';
 import { applyPreset, type Mode } from '@/src/core/settings';
 import { COPY, MODES } from '@/src/theme';
 import { useItem } from '@/src/ui/useItem';
 import Findings from './Findings';
 import Bin from './Bin';
+import History from './History';
 
 export default function App() {
   const [settings, setSettings] = useItem(settingsItem),
     [findings] = useItem(findingsItem),
     [paused, setPaused] = useItem(pausedUntil),
     [dedupe, setDedupe] = useItem(lastDedupe),
-    [bin, setBin] = useItem(binItem);
+    [bin, setBin] = useItem(binItem),
+    [history, setHistory] = useItem(historyItem),
+    [pending] = useItem(pendingActions),
+    [enabledAt, setEnabledAt] = useItem(autoEnabledAt);
   const [showBin, setShowBin] = useState(false),
+    [showHistory, setShowHistory] = useState(false),
     now = Date.now(),
     minutes = Math.max(1, Math.ceil((paused - now) / 60_000));
   const refresh = () => scan().then(() => undefined);
@@ -23,6 +36,8 @@ export default function App() {
     <main className="w-80 p-4 text-sm">
       {showBin ? (
         <Bin entries={bin} onBack={() => setShowBin(false)} onClear={() => setBin([])} />
+      ) : showHistory ? (
+        <History entries={history} onBack={() => setShowHistory(false)} onClear={() => setHistory([])} />
       ) : (
         <>
           <header>
@@ -43,6 +58,22 @@ export default function App() {
               </select>
             </div>
             <p className="text-xs text-gray-500">{MODES[settings.mode].blurb}</p>
+            {autoOn(settings) &&
+              (enabledAt && now - enabledAt < settings.auto.dryRunHours * 3_600_000 ? (
+                <p className="text-xs">
+                  Dry run: {Math.ceil((settings.auto.dryRunHours * 3_600_000 - now + enabledAt) / 3_600_000)}h
+                  left — actions are only logged{' '}
+                  <button onClick={() => setEnabledAt(now - settings.auto.dryRunHours * 3_600_000 - 1)}>
+                    Skip dry run
+                  </button>
+                </p>
+              ) : (
+                pending.length > 0 && (
+                  <p className="text-xs">
+                    {pending.length} tabs scheduled for auto-action in ≤{settings.auto.graceSeconds}s
+                  </p>
+                )
+              ))}
           </header>
           <div className="mt-3 flex items-center justify-between">
             {paused > now ? (
@@ -85,6 +116,7 @@ export default function App() {
           )}
           <footer className="mt-3 flex justify-between border-t pt-3">
             <button onClick={() => setShowBin(true)}>Recently closed ({bin.length})</button>
+            <button onClick={() => setShowHistory(true)}>History ({history.length})</button>
             <button onClick={() => browser.runtime.openOptionsPage()}>Settings</button>
           </footer>
         </>

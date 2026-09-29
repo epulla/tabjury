@@ -7,8 +7,6 @@ export type Findings = { at: number; dups: DupGroup[]; inactive: InactiveHit[] }
 export const findingsItem = storage.defineItem<Findings>('session:findings', {
   fallback: { at: 0, dups: [], inactive: [] },
 });
-let timer: ReturnType<typeof setTimeout> | undefined;
-
 export async function scan(): Promise<Findings> {
   const s = await getSettings(),
     now = Date.now(),
@@ -30,21 +28,25 @@ export async function scan(): Promise<Findings> {
   return findings;
 }
 
-export function registerScanner(): void {
+export function registerScanner(
+  onScan: (f: Findings, s: Awaited<ReturnType<typeof getSettings>>) => Promise<void> = async () => {},
+): void {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const run = () => scan().then((f) => getSettings().then((s) => onScan(f, s)));
   browser.alarms.create('scan', { periodInMinutes: 0.5 });
   browser.alarms.onAlarm.addListener((a) => {
-    if (a.name === 'scan') scan();
+    if (a.name === 'scan') run();
   });
   const schedule = () => {
     clearTimeout(timer);
-    timer = setTimeout(() => scan(), 2_000);
+    timer = setTimeout(() => run(), 2_000);
   };
   browser.tabs.onActivated.addListener(schedule);
   browser.tabs.onRemoved.addListener(schedule);
   browser.tabs.onUpdated.addListener((_id, change) => {
     if (change.status === 'complete' || change.discarded !== undefined) schedule();
   });
-  browser.runtime.onStartup.addListener(() => scan());
-  browser.runtime.onInstalled.addListener(() => scan());
+  browser.runtime.onStartup.addListener(run);
+  browser.runtime.onInstalled.addListener(run);
   browser.action.setBadgeBackgroundColor({ color: '#6b7280' });
 }

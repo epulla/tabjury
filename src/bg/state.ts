@@ -1,5 +1,6 @@
 import { storage } from 'wxt/utils/storage';
 import { DEFAULTS, migrate, type Settings } from '../core/settings';
+import type { Action } from '../core/policy';
 
 export const settingsItem = storage.defineItem<Settings>('sync:settings', { fallback: DEFAULTS });
 export async function getSettings(): Promise<Settings> {
@@ -17,3 +18,13 @@ export const lastDedupe = storage.defineItem<{
   index: number;
   at: number;
 } | null>('session:lastDedupe', { fallback: null });
+export const pendingActions = storage.defineItem<Action[]>('session:pendingActions', { fallback: [] });
+export const autoEnabledAt = storage.defineItem<number>('sync:autoEnabledAt', { fallback: 0 });
+export type HistoryEntry = {
+  at: number;
+  kind: 'close' | 'discard' | 'would-close' | 'would-discard';
+  reason: 'duplicate' | 'inactive';
+  title: string;
+  url: string;
+};
+export const historyItem = storage.defineItem<HistoryEntry[]>('local:history', { fallback: [] });
