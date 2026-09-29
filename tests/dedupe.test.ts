@@ -1,64 +1,80 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fakeBrowser } from 'wxt/testing/fake-browser';
 import { registerDedupe } from '../src/bg/dedupe';
-import { freshTabs, pausedUntil, recentlyDeduped } from '../src/bg/state';
+import { pausedUntil, recentlyDeduped } from '../src/bg/state';
 import { binItem, restore } from '../src/bg/bin';
 
+// fakeBrowser.reset() does not restore stubbed methods; capture originals once
+const realQuery = fakeBrowser.tabs.query.bind(fakeBrowser.tabs);
+const realCreate = fakeBrowser.tabs.create.bind(fakeBrowser.tabs);
 let forcedActive = new Set<number>();
-beforeEach(() => {
+beforeEach(async () => {
   fakeBrowser.reset();
   forcedActive = new Set();
   vi.stubGlobal('browser', fakeBrowser);
   fakeBrowser.windows.update = vi.fn();
   fakeBrowser.action.setBadgeText = vi.fn();
   fakeBrowser.alarms.create = vi.fn();
-  const query = fakeBrowser.tabs.query.bind(fakeBrowser.tabs),
-    removed = new Set<number>();
+  const removed = new Set<number>();
   fakeBrowser.tabs.query = vi.fn(async (filter) =>
-    (await query(filter))
+    (await realQuery(filter))
       .filter((tab) => tab.id !== 0 && !removed.has(tab.id!))
       .map((tab) => ({ ...tab, active: tab.active || forcedActive.has(tab.id!) })),
   );
   fakeBrowser.tabs.remove = vi.fn(async (id) => {
     removed.add(id);
   });
-  registerDedupe();
+  await recentlyDeduped.setValue({});
+  await registerDedupe();
 });
-const open = async (url: string, active = false) => {
-  const tab = await fakeBrowser.tabs.create({ url, windowId: 1, active });
+// fake tabs.create auto-fires onCreated with url set (looks like a clone); mute it and fire the realistic shape
+const open = async (url: string, { active = false, clone = false, pending = true } = {}) => {
+  const fire = fakeBrowser.tabs.onCreated.trigger.bind(fakeBrowser.tabs.onCreated);
+  fakeBrowser.tabs.onCreated.trigger = async () => [];
+  const tab = await realCreate({ url, windowId: 1, active });
+  fakeBrowser.tabs.onCreated.trigger = fire;
   if (active) forcedActive.add(tab.id!);
-  await fakeBrowser.tabs.onCreated.trigger(tab);
-  await freshTabs.setValue({ [tab.id!]: Date.now() });
+  await fire({ ...tab, url: clone ? url : '', pendingUrl: clone || !pending ? undefined : url });
   return tab;
 };
 
 describe('dedupe', () => {
-  it('dedupes and bins fresh tab', async () => {
-    const a = await open('https://x.com/p'),
-      b = await open('https://x.com/p');
+  it('dedupes external link even when existing tab is active', async () => {
+    const a = await open('https://x.com/p', { active: true }),
+      b = await open('https://x.com/p', { active: true });
     await fakeBrowser.tabs.onUpdated.trigger(b.id!, { url: b.url }, b);
     const tabs = await fakeBrowser.tabs.query({}),
       bin = await binItem.getValue();
-    expect(tabs).toHaveLength(1);
-    expect(tabs[0]!.id).toBe(a.id);
+    expect(tabs.map((tab) => tab.id)).toEqual([a.id]);
     expect(tabs[0]!.active).toBe(true);
-    expect(bin).toHaveLength(1);
     expect(bin[0]!.reason).toBe('dedupe');
   });
-  it('keeps alibi tab', async () => {
+  it('keeps clone', async () => {
+    const a = await open('https://x.com/p', { active: true }),
+      b = await open('https://x.com/p', { clone: true });
+    await fakeBrowser.tabs.onUpdated.trigger(b.id!, { status: 'complete' }, b);
+    expect((await fakeBrowser.tabs.query({})).map((tab) => tab.id)).toEqual([a.id, b.id]);
+  });
+  it('keeps tab while paused', async () => {
     const b = await open('https://x.com/p');
     await pausedUntil.setValue(Date.now() + 60_000);
     await fakeBrowser.tabs.onUpdated.trigger(b.id!, { url: b.url }, b);
     expect((await fakeBrowser.tabs.query({})).some((tab) => tab.id === b.id)).toBe(true);
   });
   it('keeps second strike', async () => {
-    const a = await open('https://x.com/p'),
-      b = await open('https://x.com/p');
+    await open('https://x.com/p');
+    const b = await open('https://x.com/p');
     await fakeBrowser.tabs.onUpdated.trigger(b.id!, { url: b.url }, b);
     const c = await open('https://x.com/p');
     await fakeBrowser.tabs.onUpdated.trigger(c.id!, { url: c.url }, c);
     expect((await fakeBrowser.tabs.query({})).some((tab) => tab.id === c.id)).toBe(true);
     expect(Object.keys(await recentlyDeduped.getValue())).toHaveLength(1);
+  });
+  it('dedupes on complete when no pendingUrl', async () => {
+    const a = await open('https://x.com/p'),
+      b = await open('https://x.com/p', { pending: false });
+    await fakeBrowser.tabs.onUpdated.trigger(b.id!, { status: 'complete' }, b);
+    expect((await fakeBrowser.tabs.query({})).map((tab) => tab.id)).toEqual([a.id]);
   });
   it('restores bin entry', async () => {
     const tab = await open('https://x.com/p');
