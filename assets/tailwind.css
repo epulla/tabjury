@@ -23,5 +23,6 @@
 }
 
 @layer base {
+  *, ::before, ::after { border-color: #e5e7eb; }
   input[type=checkbox], input[type=radio] { accent-color: var(--accent); }
 }

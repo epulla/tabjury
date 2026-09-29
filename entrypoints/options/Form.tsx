@@ -1,5 +1,5 @@
-import { applyPreset, withChange, type Mode, type Settings } from '@/src/core/settings';
-import { MODES, SWATCHES } from '@/src/theme';
+import { applyPreset, PRESETS, withChange, type Mode, type Settings } from '@/src/core/settings';
+import { modeDetails, MODES, SWATCHES } from '@/src/theme';
 
 export default function Form({
   settings,
@@ -42,6 +42,11 @@ export default function Form({
                 {MODES[mode].name} ({mode})
               </strong>
               <span className="mt-1 block text-xs text-gray-500">{MODES[mode].blurb}</span>
+              <ul className="mt-1 list-disc pl-4 text-xs text-gray-500">
+                {modeDetails(mode === 'custom' ? settings : PRESETS[mode]).map((line) => (
+                  <li key={line}>{line}</li>
+                ))}
+              </ul>
               {mode === 'custom' && (
                 <>
                   <span className="mt-1 block text-xs text-gray-500">
