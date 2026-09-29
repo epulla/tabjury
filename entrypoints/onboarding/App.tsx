@@ -20,8 +20,8 @@ export default function App() {
             <li>Reuses an already-open tab when you open the same link again.</li>
             <li>Flags duplicate and inactive tabs in the popup.</li>
             <li>
-              In Supreme Court mode, auto-closes duplicates and discards inactive tabs after a 24-hour trial
-              period.
+              In Supreme Court mode, auto-closes duplicates and discards inactive tabs after a 24-hour
+              practice run.
             </li>
           </ul>
         </section>

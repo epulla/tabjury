@@ -389,7 +389,7 @@ export default function Form({
           />
         </label>
         <label className="mt-2 block">
-          Trial period before auto-cleanup starts (hours){' '}
+          Practice run before auto-cleanup starts (hours){' '}
           <input
             className="field ml-2 w-20"
             type="number"

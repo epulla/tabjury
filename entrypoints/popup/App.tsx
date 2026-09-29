@@ -44,7 +44,7 @@ export default function App() {
           <header className="border-b border-[color-mix(in_srgb,var(--accent)_25%,transparent)] bg-[color-mix(in_srgb,var(--accent)_14%,transparent)] px-4 pb-3 pt-4">
             <div className="flex items-baseline justify-between">
               <strong className="text-base">TabJury</strong>
-              <span className="flex items-center text-xs font-medium text-[var(--accent)]">
+              <span className="flex items-center gap-1 text-xs font-medium text-[var(--accent)]">
                 {MODES[settings.mode].name}
                 <button
                   type="button"
@@ -114,9 +114,9 @@ export default function App() {
             {autoOn(settings) &&
               (enabledAt && now - enabledAt < settings.auto.dryRunHours * 3_600_000 ? (
                 <p className="mt-2 rounded-lg bg-[color-mix(in_srgb,var(--accent)_8%,transparent)] p-2 text-xs">
-                  Trial period:{' '}
+                  <strong>Practice run</strong> ·{' '}
                   {Math.ceil((settings.auto.dryRunHours * 3_600_000 - now + enabledAt) / 3_600_000)}h left.
-                  TabJury won't close anything yet; it only notes what it would close in History.{' '}
+                  Nothing gets closed yet. TabJury only shows in History what it <em>would</em> close.{' '}
                   <button
                     type="button"
                     className="btn ml-1"
@@ -126,7 +126,7 @@ export default function App() {
                       ) && setEnabledAt(now - settings.auto.dryRunHours * 3_600_000 - 1)
                     }
                   >
-                    Start now
+                    Start cleaning now
                   </button>
                 </p>
               ) : (
