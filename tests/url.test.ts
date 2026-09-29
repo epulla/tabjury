@@ -2,7 +2,12 @@ import { describe, it, expect } from 'vitest';
 import { normalizeUrl } from '../src/core/url';
 import type { Matching } from '../src/core/settings';
 
-const base: Matching = { ignoreHash: false, ignoreTrailingSlash: false, stripTracking: false, ignoreQuery: false };
+const base: Matching = {
+  ignoreHash: false,
+  ignoreTrailingSlash: false,
+  stripTracking: false,
+  ignoreQuery: false,
+};
 describe('normalizeUrl', () => {
   it.each([
     ['HTTP://EXAMPLE.COM:80/a#x', { ignoreHash: true }, 'http://example.com/a'],
@@ -10,7 +15,11 @@ describe('normalizeUrl', () => {
     ['https://example.com/a?utm_source=x&ok=1', { stripTracking: true }, 'https://example.com/a?ok=1'],
     ['https://example.com/a/', { ignoreTrailingSlash: true }, 'https://example.com/a'],
     ['https://example.com:443/', {}, 'https://example.com/'],
-    ['chrome://tabs/', {}, null], ['not a url', {}, null],
-  ])('normalizes %s', (input, override, expected) => expect(normalizeUrl(input, { ...base, ...override })).toBe(expected));
-  it('removes query when requested', () => expect(normalizeUrl('https://x.test/a?x=1', { ...base, ignoreQuery: true })).toBe('https://x.test/a'));
+    ['chrome://tabs/', {}, null],
+    ['not a url', {}, null],
+  ])('normalizes %s', (input, override, expected) =>
+    expect(normalizeUrl(input, { ...base, ...override })).toBe(expected),
+  );
+  it('removes query when requested', () =>
+    expect(normalizeUrl('https://x.test/a?x=1', { ...base, ignoreQuery: true })).toBe('https://x.test/a'));
 });

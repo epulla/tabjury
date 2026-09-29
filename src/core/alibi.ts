@@ -2,7 +2,11 @@ import type { Tab } from './classify';
 
 export type Alibi = 'active' | 'opener' | 'recent' | 'two-strikes' | 'paused';
 
-export function findAlibi(fresh: Tab, existing: Tab, ctx: { now: number; recentlyDeduped: Record<string, number>; key: string; paused: boolean }): Alibi | null {
+export function findAlibi(
+  fresh: Tab,
+  existing: Tab,
+  ctx: { now: number; recentlyDeduped: Record<string, number>; key: string; paused: boolean },
+): Alibi | null {
   if (ctx.paused) return 'paused';
   if (existing.active && existing.windowId === fresh.windowId) return 'active';
   if (fresh.openerTabId === existing.id) return 'opener';
