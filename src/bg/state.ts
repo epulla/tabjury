@@ -6,7 +6,9 @@ export const settingsItem = storage.defineItem<Settings>('sync:settings', { fall
 export async function getSettings(): Promise<Settings> {
   return migrate(await settingsItem.getValue());
 }
-export const freshTabs = storage.defineItem<Record<number, number>>('session:freshTabs', { fallback: {} });
+export const freshTabs = storage.defineItem<Record<number, string | undefined>>('session:freshTabs', {
+  fallback: {},
+});
 export const recentlyDeduped = storage.defineItem<Record<string, number>>('session:recentlyDeduped', {
   fallback: {},
 });
