@@ -35,16 +35,18 @@ export default function FindingsView({ findings, settings, onRefresh }: Props) {
       {dups.length > 0 && (
         <section className="mt-3">
           <header className="flex items-center justify-between">
-            <h2 className="font-semibold">Duplicates ({duplicateTabs.length})</h2>
+            <h2 className="font-semibold text-[var(--accent)]">Duplicates ({duplicateTabs.length})</h2>
             <span className="flex gap-2">
-              <button onClick={() => close(duplicateTabs, 'duplicate')}>Close all extras</button>
+              <button type="button" className="btn" onClick={() => close(duplicateTabs, 'duplicate')}>
+                Close all extras
+              </button>
             </span>
           </header>
           <ul className="mt-1 divide-y">
             {dups.map((group) => (
               <li
                 key={group.key}
-                className="flex cursor-pointer items-center gap-2 py-2"
+                className="flex cursor-pointer items-center gap-2 rounded-md px-1 py-2 hover:bg-black/5"
                 onClick={() => focus(group.keep)}
               >
                 <input
@@ -71,23 +73,27 @@ export default function FindingsView({ findings, settings, onRefresh }: Props) {
       {inactive.length > 0 && (
         <section className="mt-3">
           <header className="flex items-center justify-between">
-            <h2 className="font-semibold">Inactive ({inactive.length})</h2>
+            <h2 className="font-semibold text-[var(--accent)]">Inactive ({inactive.length})</h2>
             <span className="flex gap-2">
               <button
+                type="button"
+                className="btn"
                 onClick={() =>
                   Promise.all(inactiveTabs.map((tab) => browser.tabs.discard(tab.id!))).then(onRefresh)
                 }
               >
                 Discard all
               </button>
-              <button onClick={() => close(inactiveTabs, 'inactive')}>Close all</button>
+              <button type="button" className="btn" onClick={() => close(inactiveTabs, 'inactive')}>
+                Close all
+              </button>
             </span>
           </header>
           <ul className="mt-1 divide-y">
             {inactive.map((hit) => (
               <li
                 key={hit.tab.id}
-                className="flex cursor-pointer items-center gap-2 py-2"
+                className="flex cursor-pointer items-center gap-2 rounded-md px-1 py-2 hover:bg-black/5"
                 onClick={() => focus(hit.tab)}
               >
                 <input
@@ -113,7 +119,7 @@ export default function FindingsView({ findings, settings, onRefresh }: Props) {
       )}
       {selectedTabs.length > 0 && (
         <button
-          className="mt-3 w-full border-t pt-2 text-left font-semibold"
+          className="btn btn-primary mt-3 w-full justify-center"
           onClick={() =>
             Promise.all([
               close(

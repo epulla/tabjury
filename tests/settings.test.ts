@@ -12,12 +12,12 @@ describe('settings', () => {
   ])('changes preset state', (patch, mode) => expect(withChange(DEFAULTS, patch as never).mode).toBe(mode));
   it('clamps close duration', () =>
     expect(withChange(DEFAULTS, { inactive: 'close', closeMinutes: 1 }).closeMinutes).toBe(120));
-  it.each([undefined, { mode: 'bogus', inactiveMinutes: 'x', protect: { domains: 'no' }, extra: 1 }])(
-    'migrates garbage',
-    (raw) => {
-      const result = migrate(raw);
-      expect(result).toEqual(DEFAULTS);
-      expect(result).not.toHaveProperty('extra');
-    },
-  );
+  it.each([
+    undefined,
+    { mode: 'bogus', customColor: 'neon', inactiveMinutes: 'x', protect: { domains: 'no' }, extra: 1 },
+  ])('migrates garbage', (raw) => {
+    const result = migrate(raw);
+    expect(result).toEqual(DEFAULTS);
+    expect(result).not.toHaveProperty('extra');
+  });
 });
