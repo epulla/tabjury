@@ -1,5 +1,6 @@
 import { applyPreset, PRESETS, withChange, type Mode, type Settings } from '@/src/core/settings';
 import { modeDetails, MODES, SWATCHES } from '@/src/theme';
+import Switch from '@/src/ui/Switch';
 
 export default function Form({
   settings,
@@ -32,7 +33,9 @@ export default function Form({
                 value={mode}
                 checked={settings.mode === mode}
                 onChange={() =>
-                  setSettings(mode === 'custom' ? { ...settings, mode } : applyPreset(settings, mode))
+                  setSettings(
+                    mode === 'custom' ? { ...settings, mode, autoClean: false } : applyPreset(settings, mode),
+                  )
                 }
               />
               <strong>
@@ -135,6 +138,7 @@ export default function Form({
             />
           </label>
         )}
+        <p className="mt-2 text-xs text-gray-500">Auto options only run when automatic cleanup is on.</p>
       </fieldset>
 
       <fieldset className="mt-6">
@@ -359,7 +363,16 @@ export default function Form({
       </fieldset>
 
       <fieldset className="mt-6">
-        <legend className="font-semibold text-[var(--accent)]">Auto-cleanup safety</legend>
+        <legend className="font-semibold text-[var(--accent)]">Automatic cleanup</legend>
+        {(settings.mode === 'ultra' || settings.mode === 'custom') && (
+          <div className="mt-2">
+            <Switch
+              checked={settings.autoClean}
+              onChange={(autoClean) => setSettings(withChange(settings, { autoClean }))}
+              label="Automatically close duplicate tabs and tidy up inactive tabs"
+            />
+          </div>
+        )}
         <label className="mt-2 block">
           Wait before acting (seconds){' '}
           <input
@@ -384,20 +397,6 @@ export default function Form({
             onChange={(e) =>
               setSettings(
                 withChange(settings, { auto: { ...settings.auto, batchCap: Number(e.target.value) } }),
-              )
-            }
-          />
-        </label>
-        <label className="mt-2 block">
-          Practice run before auto-cleanup starts (hours){' '}
-          <input
-            className="field ml-2 w-20"
-            type="number"
-            min="0"
-            value={settings.auto.dryRunHours}
-            onChange={(e) =>
-              setSettings(
-                withChange(settings, { auto: { ...settings.auto, dryRunHours: Number(e.target.value) } }),
               )
             }
           />

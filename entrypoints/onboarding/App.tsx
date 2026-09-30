@@ -20,8 +20,8 @@ export default function App() {
             <li>Reuses an already-open tab when you open the same link again.</li>
             <li>Flags duplicate and inactive tabs in the popup.</li>
             <li>
-              In Supreme Court mode, auto-closes duplicates and discards inactive tabs after a 24-hour
-              practice run.
+              In Supreme Court mode, auto-closes duplicates and puts inactive tabs to sleep. Turn it off with
+              the switch in the popup.
             </li>
           </ul>
         </section>
@@ -60,8 +60,7 @@ export default function App() {
           <h2 className="mb-3 text-lg font-semibold">Immunity</h2>
           <p>
             Never touched: the active tab, pinned tabs, tabs playing audio, tabs in groups, tabs used in the
-            last 5 minutes, and domains you list in Settings. For the first 24 hours TabJury only notes what
-            it would close — check History in the popup to see.
+            last 5 minutes, and domains you list in Settings.
           </p>
           <div className="mt-4 flex gap-3">
             <button

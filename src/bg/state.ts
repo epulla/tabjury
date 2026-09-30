@@ -21,10 +21,9 @@ export const lastDedupe = storage.defineItem<{
   at: number;
 } | null>('session:lastDedupe', { fallback: null });
 export const pendingActions = storage.defineItem<Action[]>('session:pendingActions', { fallback: [] });
-export const autoEnabledAt = storage.defineItem<number>('sync:autoEnabledAt', { fallback: 0 });
 export type HistoryEntry = {
   at: number;
-  kind: 'close' | 'discard' | 'would-close' | 'would-discard';
+  kind: 'close' | 'discard';
   reason: 'duplicate' | 'inactive';
   title: string;
   url: string;

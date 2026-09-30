@@ -3,15 +3,15 @@ import {
   settingsItem,
   pausedUntil,
   lastDedupe,
-  autoEnabledAt,
   historyItem,
   pendingActions,
 } from '@/src/bg/state';
 import { findingsItem, scan } from '@/src/bg/scanner';
 import { autoOn } from '@/src/bg/actions';
 import { binItem } from '@/src/bg/bin';
-import { applyPreset, PRESETS, type Mode } from '@/src/core/settings';
+import { applyPreset, PRESETS, withChange, type Mode } from '@/src/core/settings';
 import { accentFor, COPY, modeDetails, MODES } from '@/src/theme';
+import Switch from '@/src/ui/Switch';
 import { useItem } from '@/src/ui/useItem';
 import Findings from './Findings';
 import Bin from './Bin';
@@ -24,8 +24,7 @@ export default function App() {
     [dedupe, setDedupe] = useItem(lastDedupe),
     [bin, setBin] = useItem(binItem),
     [history, setHistory] = useItem(historyItem),
-    [pending] = useItem(pendingActions),
-    [enabledAt, setEnabledAt] = useItem(autoEnabledAt);
+    [pending] = useItem(pendingActions);
   const [showBin, setShowBin] = useState(false),
     [showHistory, setShowHistory] = useState(false),
     [showPause, setShowPause] = useState(false),
@@ -72,9 +71,12 @@ export default function App() {
                       '--seg-color': mode === 'custom' ? accentFor(settings) : MODES[mode].color,
                     } as CSSProperties
                   }
-                  onClick={() =>
-                    setSettings(mode === 'custom' ? { ...settings, mode } : applyPreset(settings, mode))
-                  }
+                  onClick={() => {
+                    if (settings.mode === mode) return;
+                    setSettings(
+                      mode === 'custom' ? { ...settings, mode, autoClean: false } : applyPreset(settings, mode),
+                    );
+                  }}
                 >
                   {mode.charAt(0).toUpperCase() + mode.slice(1)}
                 </button>
@@ -111,35 +113,24 @@ export default function App() {
                 ))}
               </div>
             )}
-            {autoOn(settings) &&
-              (enabledAt && now - enabledAt < settings.auto.dryRunHours * 3_600_000 ? (
+            {(settings.mode === 'ultra' || settings.mode === 'custom') && (
+              <div className="mt-3">
+                <Switch
+                  checked={settings.autoClean}
+                  onChange={(autoClean) => setSettings(withChange(settings, { autoClean }))}
+                  label="Automatically close duplicate tabs and tidy up inactive tabs"
+                />
+              </div>
+            )}
+            {autoOn(settings) && pending.length > 0 && (
                 <p className="mt-2 rounded-lg bg-[color-mix(in_srgb,var(--accent)_8%,transparent)] p-2 text-xs">
-                  <strong>Practice run</strong> ·{' '}
-                  {Math.ceil((settings.auto.dryRunHours * 3_600_000 - now + enabledAt) / 3_600_000)}h left.
-                  Nothing gets closed yet. TabJury only shows in History what it <em>would</em> close.{' '}
-                  <button
-                    type="button"
-                    className="btn ml-1"
-                    onClick={() =>
-                      window.confirm(
-                        'TabJury will start closing and discarding tabs automatically. Continue?',
-                      ) && setEnabledAt(now - settings.auto.dryRunHours * 3_600_000 - 1)
-                    }
-                  >
-                    Start cleaning now
-                  </button>
+                  {`${pending.length} tabs will be tidied up ${
+                    settings.auto.graceSeconds <= 60
+                      ? 'in about a minute'
+                      : `in about ${Math.ceil(settings.auto.graceSeconds / 60)} minutes`
+                  }`}
                 </p>
-              ) : (
-                pending.length > 0 && (
-                  <p className="mt-2 rounded-lg bg-[color-mix(in_srgb,var(--accent)_8%,transparent)] p-2 text-xs">
-                    {`${pending.length} tabs will be tidied up ${
-                      settings.auto.graceSeconds <= 60
-                        ? 'in about a minute'
-                        : `in about ${Math.ceil(settings.auto.graceSeconds / 60)} minutes`
-                    }`}
-                  </p>
-                )
-              ))}
+            )}
           </header>
           <div className="px-4 pb-4">
             <div className="mt-3 flex items-center justify-between">

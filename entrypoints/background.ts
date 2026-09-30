@@ -1,17 +1,16 @@
 import { registerDedupe } from '../src/bg/dedupe';
 import { registerScanner, scan } from '../src/bg/scanner';
 import { autoOn, execute, schedule } from '../src/bg/actions';
-import { autoEnabledAt, pausedUntil, pendingActions, settingsItem } from '../src/bg/state';
+import { pausedUntil, pendingActions, settingsItem } from '../src/bg/state';
 
 export default defineBackground(() => {
   registerDedupe();
   registerScanner(schedule);
-  settingsItem.watch(async (next, previous) => {
+  settingsItem.watch(async (next) => {
     if (!autoOn(next)) {
       await pendingActions.setValue([]);
       await browser.alarms.clear('grace');
-    } else if ((!previous || !autoOn(previous)) && !(await autoEnabledAt.getValue()))
-      await autoEnabledAt.setValue(Date.now());
+    }
   });
   browser.alarms.onAlarm.addListener((a) => {
     if (a.name === 'grace') execute();
