@@ -10,6 +10,7 @@ export type Matching = {
 };
 export type Settings = {
   mode: Mode;
+  customColor: string;
   dedupeOnOpen: boolean;
   duplicates: DupLevel;
   inactive: InactiveLevel;
@@ -43,6 +44,7 @@ export const PRESETS: Record<
 
 export const DEFAULTS: Settings = {
   mode: 'normal',
+  customColor: 'gray',
   ...PRESETS.normal,
   inactiveSource: 'either',
   inactiveMinutes: 60,
@@ -78,6 +80,7 @@ export function withChange(s: Settings, patch: Partial<Settings>): Settings {
 
 const choices: Record<string, readonly string[]> = {
   mode: ['lite', 'normal', 'ultra', 'custom'],
+  customColor: ['gray', 'slate', 'orange', 'rose', 'amber', 'teal', 'indigo', 'pink'],
   duplicates: ['off', 'detect', 'auto'],
   inactive: ['off', 'detect', 'discard', 'close'],
   inactiveSource: ['native', 'timer', 'either', 'both'],

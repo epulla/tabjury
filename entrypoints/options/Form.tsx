@@ -1,5 +1,5 @@
-import { applyPreset, withChange, type Mode, type Settings } from '@/src/core/settings';
-import { MODES } from '@/src/theme';
+import { applyPreset, PRESETS, withChange, type Mode, type Settings } from '@/src/core/settings';
+import { modeDetails, MODES, SWATCHES } from '@/src/theme';
 
 export default function Form({
   settings,
@@ -11,31 +11,66 @@ export default function Form({
   return (
     <form>
       <fieldset className="mt-6">
-        <legend className="font-semibold">Mode</legend>
+        <legend className="font-semibold text-[var(--accent)]">Mode</legend>
         <div className="mt-2 grid gap-2 sm:grid-cols-2">
           {(['lite', 'normal', 'ultra', 'custom'] as Mode[]).map((mode) => (
-            <label key={mode} className="rounded border p-3">
+            <label
+              key={mode}
+              className="rounded-lg border border-l-4 p-3 cursor-pointer"
+              style={{
+                borderLeftColor: mode === 'custom' ? SWATCHES[settings.customColor] : MODES[mode].color,
+                background: `color-mix(in srgb, ${mode === 'custom' ? SWATCHES[settings.customColor] : MODES[mode].color} 8%, white)`,
+                ...(settings.mode === mode && {
+                  boxShadow: `0 0 0 2px ${mode === 'custom' ? SWATCHES[settings.customColor] : MODES[mode].color}`,
+                }),
+              }}
+            >
               <input
                 className="mr-2"
                 type="radio"
                 name="mode"
                 value={mode}
                 checked={settings.mode === mode}
-                disabled={mode === 'custom' && settings.mode !== 'custom'}
                 onChange={() =>
-                  mode === 'custom'
-                    ? undefined
-                    : setSettings(applyPreset(settings, mode as Exclude<Mode, 'custom'>))
+                  setSettings(mode === 'custom' ? { ...settings, mode } : applyPreset(settings, mode))
                 }
               />
               <strong>
                 {MODES[mode].name} ({mode})
               </strong>
               <span className="mt-1 block text-xs text-gray-500">{MODES[mode].blurb}</span>
+              <ul className="mt-1 list-disc pl-4 text-xs text-gray-500">
+                {modeDetails(mode === 'custom' ? settings : PRESETS[mode]).map((line) => (
+                  <li key={line}>{line}</li>
+                ))}
+              </ul>
               {mode === 'custom' && (
-                <span className="mt-1 block text-xs text-gray-500">
-                  Change any rule below to switch to Your Court.
-                </span>
+                <>
+                  <span className="mt-1 block text-xs text-gray-500">
+                    Pick this, then adjust any rule below.
+                  </span>
+                  <div role="group" aria-label="Custom color" className="mt-2 flex gap-1.5">
+                    {Object.entries(SWATCHES).map(([name, hex]) => (
+                      <button
+                        key={name}
+                        type="button"
+                        aria-label={name}
+                        aria-pressed={settings.customColor === name}
+                        title={name}
+                        className="h-5 w-5 rounded-full"
+                        style={{
+                          background: hex,
+                          boxShadow:
+                            settings.customColor === name ? `0 0 0 2px white, 0 0 0 4px ${hex}` : undefined,
+                        }}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setSettings(withChange(settings, { customColor: name }));
+                        }}
+                      />
+                    ))}
+                  </div>
+                </>
               )}
             </label>
           ))}
@@ -43,7 +78,7 @@ export default function Form({
       </fieldset>
 
       <fieldset className="mt-6">
-        <legend className="font-semibold">Rules</legend>
+        <legend className="font-semibold text-[var(--accent)]">Rules</legend>
         <label className="mt-2 block">
           <input
             type="checkbox"
@@ -55,7 +90,7 @@ export default function Form({
         <label className="mt-2 block">
           Duplicates
           <select
-            className="ml-2"
+            className="field ml-2"
             value={settings.duplicates}
             onChange={(e) =>
               setSettings(withChange(settings, { duplicates: e.target.value as Settings['duplicates'] }))
@@ -69,7 +104,7 @@ export default function Form({
         <label className="mt-2 block">
           Inactive
           <select
-            className="ml-2"
+            className="field ml-2"
             value={settings.inactive}
             onChange={(e) => {
               const value = e.target.value as Settings['inactive'];
@@ -92,7 +127,7 @@ export default function Form({
           <label className="mt-2 block">
             Close after (minutes){' '}
             <input
-              className="ml-2 w-20"
+              className="field ml-2 w-20"
               type="number"
               min="120"
               value={settings.closeMinutes}
@@ -103,11 +138,11 @@ export default function Form({
       </fieldset>
 
       <fieldset className="mt-6">
-        <legend className="font-semibold">Inactive tabs</legend>
+        <legend className="font-semibold text-[var(--accent)]">Inactive tabs</legend>
         <label className="mt-2 block">
           Inactive source
           <select
-            className="ml-2"
+            className="field ml-2"
             value={settings.inactiveSource}
             onChange={(e) =>
               setSettings(
@@ -124,7 +159,7 @@ export default function Form({
         <label className="mt-2 block">
           Idle after (minutes){' '}
           <input
-            className="ml-2 w-20"
+            className="field ml-2 w-20"
             type="number"
             min="1"
             value={settings.inactiveMinutes}
@@ -134,7 +169,7 @@ export default function Form({
       </fieldset>
 
       <fieldset className="mt-6">
-        <legend className="font-semibold">URL matching</legend>
+        <legend className="font-semibold text-[var(--accent)]">URL matching</legend>
         <label className="mt-2 block">
           <input
             type="checkbox"
@@ -188,11 +223,11 @@ export default function Form({
       </fieldset>
 
       <fieldset className="mt-6">
-        <legend className="font-semibold">Scope</legend>
+        <legend className="font-semibold text-[var(--accent)]">Scope</legend>
         <label className="mt-2 block">
           Reuse tabs from:
           <select
-            className="ml-2"
+            className="field ml-2"
             value={settings.dedupeScope}
             onChange={(e) =>
               setSettings(withChange(settings, { dedupeScope: e.target.value as Settings['dedupeScope'] }))
@@ -206,7 +241,7 @@ export default function Form({
           <label className="mt-2 block">
             When the tab is in another window:
             <select
-              className="ml-2"
+              className="field ml-2"
               value={settings.crossWindow}
               onChange={(e) =>
                 setSettings(withChange(settings, { crossWindow: e.target.value as Settings['crossWindow'] }))
@@ -220,7 +255,7 @@ export default function Form({
         <label className="mt-2 block">
           Detect duplicates across:
           <select
-            className="ml-2"
+            className="field ml-2"
             value={settings.detectScope}
             onChange={(e) =>
               setSettings(withChange(settings, { detectScope: e.target.value as Settings['detectScope'] }))
@@ -233,7 +268,9 @@ export default function Form({
       </fieldset>
 
       <fieldset className="mt-6">
-        <legend className="font-semibold">Protected tabs (never auto-closed or discarded)</legend>
+        <legend className="font-semibold text-[var(--accent)]">
+          Protected tabs (never auto-closed or discarded)
+        </legend>
         <label className="mt-2 block">
           <input
             type="checkbox"
@@ -285,7 +322,7 @@ export default function Form({
         <label className="mt-2 block">
           Used in the last (minutes){' '}
           <input
-            className="ml-2 w-20"
+            className="field ml-2 w-20"
             type="number"
             min="0"
             value={settings.protect.recentMinutes}
@@ -301,7 +338,7 @@ export default function Form({
         <label className="mt-2 block">
           Domains (one per line)
           <textarea
-            className="mt-1 block w-full border p-1"
+            className="field mt-1 block w-full"
             rows={4}
             value={settings.protect.domains.join('\n')}
             onChange={(e) =>
@@ -322,11 +359,11 @@ export default function Form({
       </fieldset>
 
       <fieldset className="mt-6">
-        <legend className="font-semibold">Auto-action safety</legend>
+        <legend className="font-semibold text-[var(--accent)]">Auto-cleanup safety</legend>
         <label className="mt-2 block">
           Wait before acting (seconds){' '}
           <input
-            className="ml-2 w-20"
+            className="field ml-2 w-20"
             type="number"
             min="0"
             value={settings.auto.graceSeconds}
@@ -340,7 +377,7 @@ export default function Form({
         <label className="mt-2 block">
           Max actions per scan{' '}
           <input
-            className="ml-2 w-20"
+            className="field ml-2 w-20"
             type="number"
             min="1"
             value={settings.auto.batchCap}
@@ -352,9 +389,9 @@ export default function Form({
           />
         </label>
         <label className="mt-2 block">
-          Dry run for (hours) after enabling auto actions{' '}
+          Practice run before auto-cleanup starts (hours){' '}
           <input
-            className="ml-2 w-20"
+            className="field ml-2 w-20"
             type="number"
             min="0"
             value={settings.auto.dryRunHours}
@@ -368,11 +405,11 @@ export default function Form({
       </fieldset>
 
       <fieldset className="mt-6">
-        <legend className="font-semibold">Recently closed</legend>
+        <legend className="font-semibold text-[var(--accent)]">Recently closed</legend>
         <label className="mt-2 block">
           Keep for (days){' '}
           <input
-            className="ml-2 w-20"
+            className="field ml-2 w-20"
             type="number"
             min="1"
             value={settings.bin.retentionDays}
@@ -386,7 +423,7 @@ export default function Form({
         <label className="mt-2 block">
           Max entries{' '}
           <input
-            className="ml-2 w-20"
+            className="field ml-2 w-20"
             type="number"
             min="10"
             value={settings.bin.maxEntries}
@@ -401,7 +438,11 @@ export default function Form({
 
       <footer className="mt-6 border-t pt-4">
         Keyboard shortcut: Alt+Shift+P pauses for 15 min ·{' '}
-        <button type="button" onClick={() => browser.tabs.create({ url: 'chrome://extensions/shortcuts' })}>
+        <button
+          className="btn"
+          type="button"
+          onClick={() => browser.tabs.create({ url: 'chrome://extensions/shortcuts' })}
+        >
           Change shortcuts
         </button>
       </footer>

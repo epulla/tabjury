@@ -16,10 +16,16 @@ export default function BinView({
   };
   return (
     <section>
-      <button onClick={onBack}>Back</button>
+      <button type="button" className="btn btn-ghost" onClick={onBack}>
+        Back
+      </button>
       <header className="mt-2 flex items-center justify-between">
         <h2 className="font-semibold">Recently closed ({entries.length})</h2>
-        {entries.length > 0 && <button onClick={onClear}>Clear</button>}
+        {entries.length > 0 && (
+          <button type="button" className="btn btn-ghost" onClick={onClear}>
+            Clear
+          </button>
+        )}
       </header>
       {entries.length ? (
         <ul className="divide-y">
@@ -37,7 +43,9 @@ export default function BinView({
                   {ago(entry.closedAt)} · {entry.reason}
                 </span>
               </span>
-              <button onClick={() => restore(entry.id)}>Restore</button>
+              <button type="button" className="btn" onClick={() => restore(entry.id)}>
+                Restore
+              </button>
             </li>
           ))}
         </ul>
