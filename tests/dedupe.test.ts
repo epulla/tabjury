@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fakeBrowser } from 'wxt/testing/fake-browser';
 import { registerDedupe } from '../src/bg/dedupe';
-import { pausedUntil, recentlyDeduped } from '../src/bg/state';
+import { pausedUntil, recentlyDeduped, settingsItem } from '../src/bg/state';
 import { binItem, restore } from '../src/bg/bin';
 
 // fakeBrowser.reset() does not restore stubbed methods; capture originals once
@@ -54,6 +54,13 @@ describe('dedupe', () => {
       b = await open('https://x.com/p', { clone: true });
     await fakeBrowser.tabs.onUpdated.trigger(b.id!, { status: 'complete' }, b);
     expect((await fakeBrowser.tabs.query({})).map((tab) => tab.id)).toEqual([a.id, b.id]);
+  });
+  it('dedupes clone in ultra mode', async () => {
+    await settingsItem.setValue({ ...settingsItem.fallback, mode: 'ultra', autoClean: true });
+    const a = await open('https://x.com/p', { active: true }),
+      b = await open('https://x.com/p', { clone: true });
+    await fakeBrowser.tabs.onUpdated.trigger(b.id!, { status: 'complete' }, b);
+    expect((await fakeBrowser.tabs.query({})).map((tab) => tab.id)).toEqual([a.id]);
   });
   it('keeps tab while paused', async () => {
     const b = await open('https://x.com/p');

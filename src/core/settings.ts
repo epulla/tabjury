@@ -21,6 +21,7 @@ export type Settings = {
   dedupeScope: 'window' | 'all';
   crossWindow: 'focus' | 'move';
   detectScope: 'window' | 'all';
+  autoClean: boolean;
   protect: {
     active: boolean;
     pinned: boolean;
@@ -29,17 +30,17 @@ export type Settings = {
     recentMinutes: number;
     domains: string[];
   };
-  auto: { graceSeconds: number; batchCap: number; dryRunHours: number };
+  auto: { graceSeconds: number; batchCap: number };
   bin: { retentionDays: number; maxEntries: number };
 };
 
 export const PRESETS: Record<
   Exclude<Mode, 'custom'>,
-  Pick<Settings, 'dedupeOnOpen' | 'duplicates' | 'inactive'>
+  Pick<Settings, 'dedupeOnOpen' | 'duplicates' | 'inactive' | 'autoClean'>
 > = {
-  lite: { dedupeOnOpen: true, duplicates: 'off', inactive: 'off' },
-  normal: { dedupeOnOpen: true, duplicates: 'detect', inactive: 'detect' },
-  ultra: { dedupeOnOpen: true, duplicates: 'auto', inactive: 'discard' },
+  lite: { dedupeOnOpen: true, duplicates: 'off', inactive: 'off', autoClean: false },
+  normal: { dedupeOnOpen: true, duplicates: 'detect', inactive: 'detect', autoClean: false },
+  ultra: { dedupeOnOpen: true, duplicates: 'auto', inactive: 'discard', autoClean: true },
 };
 
 export const DEFAULTS: Settings = {
@@ -54,7 +55,7 @@ export const DEFAULTS: Settings = {
   crossWindow: 'focus',
   detectScope: 'all',
   protect: { active: true, pinned: true, audible: true, grouped: true, recentMinutes: 5, domains: [] },
-  auto: { graceSeconds: 60, batchCap: 5, dryRunHours: 24 },
+  auto: { graceSeconds: 60, batchCap: 5 },
   bin: { retentionDays: 14, maxEntries: 500 },
 };
 
@@ -73,8 +74,10 @@ export function withChange(s: Settings, patch: Partial<Settings>): Settings {
       PRESETS[mode].duplicates === result.duplicates &&
       PRESETS[mode].inactive === result.inactive,
   );
-  if (Object.keys(patch).some((key) => ['dedupeOnOpen', 'duplicates', 'inactive'].includes(key)))
+  if (Object.keys(patch).some((key) => ['dedupeOnOpen', 'duplicates', 'inactive'].includes(key))) {
     result.mode = preset ? (patch.mode ?? s.mode) : 'custom';
+    if (result.mode === 'custom' && s.mode !== 'custom') result.autoClean = false;
+  }
   return result;
 }
 

@@ -12,6 +12,16 @@ describe('settings', () => {
   ])('changes preset state', (patch, mode) => expect(withChange(DEFAULTS, patch as never).mode).toBe(mode));
   it('clamps close duration', () =>
     expect(withChange(DEFAULTS, { inactive: 'close', closeMinutes: 1 }).closeMinutes).toBe(120));
+  it('turns auto-clean off when ultra becomes custom', () =>
+    expect(withChange(applyPreset(DEFAULTS, 'ultra'), { inactive: 'close' })).toMatchObject({
+      mode: 'custom',
+      autoClean: false,
+    }));
+  it('keeps ultra mode when auto-clean changes', () =>
+    expect(withChange(applyPreset(DEFAULTS, 'ultra'), { autoClean: false })).toMatchObject({
+      mode: 'ultra',
+      autoClean: false,
+    }));
   it.each([
     undefined,
     { mode: 'bogus', customColor: 'neon', inactiveMinutes: 'x', protect: { domains: 'no' }, extra: 1 },

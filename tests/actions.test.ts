@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fakeBrowser } from 'wxt/testing/fake-browser';
 import { execute, schedule } from '../src/bg/actions';
 import { scan } from '../src/bg/scanner';
-import { autoEnabledAt, historyItem, pausedUntil, pendingActions, settingsItem } from '../src/bg/state';
+import { historyItem, pausedUntil, pendingActions, settingsItem } from '../src/bg/state';
 import { binItem } from '../src/bg/bin';
 
 beforeEach(async () => {
@@ -44,6 +44,7 @@ describe('actions', () => {
       duplicates: 'auto',
       inactive: 'discard',
       mode: 'ultra',
+      autoClean: true,
     });
     await fakeBrowser.tabs.create({ url: 'https://a.com', active: false });
     await fakeBrowser.tabs.create({ url: 'https://a.com', active: false });
@@ -52,24 +53,23 @@ describe('actions', () => {
     expect(await pendingActions.getValue()).toHaveLength(1);
     expect(fakeBrowser.alarms.create).toHaveBeenCalledWith('grace', expect.anything());
   });
-  it('logs during dry run', async () => {
-    const tabs = await Promise.all([
-      fakeBrowser.tabs.create({ url: 'https://a.com', active: false }),
-      fakeBrowser.tabs.create({ url: 'https://a.com', active: false }),
-    ]);
-    await pendingActions.setValue([{ kind: 'close', tabId: tabs[1]!.id!, reason: 'duplicate' }]);
-    await autoEnabledAt.setValue(Date.now());
+  it('auto-clean off clears pending actions', async () => {
+    await pendingActions.setValue([{ kind: 'close', tabId: 1, reason: 'duplicate' }]);
     await execute();
-    expect((await fakeBrowser.tabs.query({})).filter((tab) => tab.id !== 0)).toHaveLength(2);
-    expect((await historyItem.getValue())[0]!.kind).toBe('would-close');
+    expect(await pendingActions.getValue()).toEqual([]);
   });
-  it('closes past dry run and bins', async () => {
+  it('closes immediately and bins', async () => {
+    await settingsItem.setValue({
+      ...(await settingsItem.getValue()),
+      mode: 'ultra',
+      duplicates: 'auto',
+      autoClean: true,
+    });
     const tabs = await Promise.all([
       fakeBrowser.tabs.create({ url: 'https://a.com', active: false }),
       fakeBrowser.tabs.create({ url: 'https://a.com', active: false }),
     ]);
     await pendingActions.setValue([{ kind: 'close', tabId: tabs[1]!.id!, reason: 'duplicate' }]);
-    await autoEnabledAt.setValue(Date.now() - 25 * 3_600_000);
     await execute();
     expect((await fakeBrowser.tabs.query({})).filter((tab) => tab.id !== 0)).toHaveLength(1);
     expect((await historyItem.getValue())[0]!.kind).toBe('close');
@@ -78,7 +78,6 @@ describe('actions', () => {
   it('skips gone duplicate', async () => {
     const tab = await fakeBrowser.tabs.create({ url: 'https://a.com', active: false });
     await pendingActions.setValue([{ kind: 'close', tabId: tab.id!, reason: 'duplicate' }]);
-    await autoEnabledAt.setValue(Date.now() - 25 * 3_600_000);
     await execute();
     expect(await historyItem.getValue()).toHaveLength(0);
   });

@@ -12,8 +12,6 @@ export default function History({
   const labels: Record<HistoryEntry['kind'], string> = {
     close: 'Closed',
     discard: 'Discarded',
-    'would-close': 'Would close (practice)',
-    'would-discard': 'Would discard (practice)',
   };
   const ago = (at: number) => `${Math.max(0, Math.floor((Date.now() - at) / 60_000))}m ago`;
   return (
