@@ -5,9 +5,11 @@ export function findAlibi(ctx: {
   recentlyDeduped: Record<string, number>;
   key: string;
   paused: boolean;
+  strict: boolean;
   createdUrl: string | undefined;
 }): Alibi | null {
   if (ctx.paused) return 'paused';
+  if (ctx.strict) return null;
   if (ctx.createdUrl) return 'clone';
   const deduped = ctx.recentlyDeduped[ctx.key];
   if (deduped && ctx.now - deduped < 15_000) return 'two-strikes';

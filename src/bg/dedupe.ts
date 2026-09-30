@@ -55,6 +55,7 @@ async function handle(tab: Tab, url: string): Promise<void> {
       recentlyDeduped: recent,
       key,
       paused: (await pausedUntil.getValue()) > now,
+      strict: s.mode === 'ultra',
       createdUrl: fresh.get(tab.id),
     })
   )

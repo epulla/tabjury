@@ -175,17 +175,19 @@ export default function App() {
             {dedupe && now - dedupe.at < 10_000 && (
               <div className="mt-3 rounded-lg border border-[color-mix(in_srgb,var(--accent)_25%,transparent)] bg-[color-mix(in_srgb,var(--accent)_8%,transparent)] p-2">
                 Reused open tab for {dedupe.title}
-                <button
-                  type="button"
-                  className="btn ml-2"
-                  onClick={() =>
-                    browser.tabs
-                      .create({ url: dedupe.url, windowId: dedupe.windowId, index: dedupe.index })
-                      .then(() => setDedupe(null))
-                  }
-                >
-                  Open as new tab anyway
-                </button>
+                {settings.mode !== 'ultra' && (
+                  <button
+                    type="button"
+                    className="btn ml-2"
+                    onClick={() =>
+                      browser.tabs
+                        .create({ url: dedupe.url, windowId: dedupe.windowId, index: dedupe.index })
+                        .then(() => setDedupe(null))
+                    }
+                  >
+                    Open as new tab anyway
+                  </button>
+                )}
               </div>
             )}
             {settings.duplicates !== 'off' || settings.inactive !== 'off' ? (
