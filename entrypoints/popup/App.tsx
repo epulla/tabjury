@@ -45,7 +45,7 @@ export default function App() {
         <>
           <header className="border-b border-[color-mix(in_srgb,var(--accent)_25%,transparent)] bg-[color-mix(in_srgb,var(--accent)_14%,transparent)] px-4 pb-3 pt-4">
             <div className="flex items-baseline justify-between">
-              <strong className="text-base">TabJury</strong>
+              <strong className="text-base"><span aria-hidden="true">⚖️</span>{' '}TabJury</strong>
               <span className="flex items-center gap-1 text-xs font-medium text-[var(--accent)]">
                 {MODES[settings.mode].name}
                 <button
@@ -190,8 +190,7 @@ export default function App() {
               {paused > now ? (
                 <>
                   <span className="flex items-center gap-2 text-gray-500">
-                    <span className="h-2 w-2 rounded-full bg-gray-400" />
-                    {COPY.paused} · {minutes} min left
+                    <span aria-hidden="true">☕</span>{' '}{COPY.paused} · {minutes} min left
                   </span>
                   <button type="button" className="btn btn-primary" onClick={() => setPaused(0)}>
                     Resume
@@ -246,7 +245,7 @@ export default function App() {
             {settings.duplicates !== 'off' || settings.inactive !== 'off' ? (
               <Findings findings={findings} settings={settings} onRefresh={refresh} />
             ) : (
-              <p className="py-8 text-center text-gray-500">{COPY.docketClear}</p>
+              <p className="py-8 text-center text-gray-500"><span aria-hidden="true">✅</span>{' '}{COPY.docketClear}</p>
             )}
             <footer className="mt-3 flex justify-between border-t border-[color-mix(in_srgb,var(--accent)_20%,transparent)] pt-3">
               <button

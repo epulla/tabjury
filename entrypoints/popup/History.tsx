@@ -17,7 +17,7 @@ export default function History({
   };
   return (
     <section>
-      <SubpageHeader title="History" count={entries.length} onBack={onBack} onClear={onClear} />
+      <SubpageHeader title="History" count={entries.length} onBack={onBack} onClear={onClear} icon="📜" />
       {entries.length ? (
         <ul className="divide-y px-4">
           {entries.map((entry) => (
@@ -25,7 +25,7 @@ export default function History({
               <span className="min-w-0 flex-1">
                 <span className="block truncate">{entry.title || entry.url}</span>
                 <span className="block text-xs text-gray-500">
-                  {labels[entry.kind]} · {entry.reason === 'duplicate' ? 'duplicate' : 'idle'}
+                  <span aria-hidden="true">{entry.kind === 'close' ? '🔨' : '💤'}</span>{' '}{labels[entry.kind]} · {entry.reason === 'duplicate' ? 'duplicate' : 'idle'}
                 </span>
               </span>
               <span className="shrink-0 text-xs text-gray-500">{timeAgo(entry.at)}</span>
