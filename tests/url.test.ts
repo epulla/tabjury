@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { normalizeUrl } from '../src/core/url';
+import { isBlankUrl, normalizeUrl } from '../src/core/url';
 import type { Matching } from '../src/core/settings';
 
 const base: Matching = {
@@ -22,4 +22,19 @@ describe('normalizeUrl', () => {
   );
   it('removes query when requested', () =>
     expect(normalizeUrl('https://x.test/a?x=1', { ...base, ignoreQuery: true })).toBe('https://x.test/a'));
+});
+
+describe('isBlankUrl', () => {
+  it.each([
+    ['', true],
+    [undefined, true],
+    ['about:blank', true],
+    ['about:newtab', true],
+    ['about:home', true],
+    ['chrome://newtab/', true],
+    ['chrome://new-tab-page/foo', true],
+    ['edge://newtab/foo', true],
+    ['https://example.com', false],
+    ['chrome://tabs/', false],
+  ])('%s is blank: %s', (url, expected) => expect(isBlankUrl(url)).toBe(expected));
 });
