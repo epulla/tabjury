@@ -1,4 +1,6 @@
 import type { HistoryEntry } from '@/src/bg/state';
+import SubpageHeader from '@/src/ui/SubpageHeader';
+import { timeAgo } from '@/src/ui/time';
 
 export default function History({
   entries,
@@ -13,28 +15,20 @@ export default function History({
     close: 'Closed',
     discard: 'Discarded',
   };
-  const ago = (at: number) => `${Math.max(0, Math.floor((Date.now() - at) / 60_000))}m ago`;
   return (
     <section>
-      <button type="button" className="btn btn-ghost" onClick={onBack}>
-        Back
-      </button>
-      <header className="mt-2 flex justify-between">
-        <h2 className="font-semibold text-[var(--accent)]">History ({entries.length})</h2>
-        {entries.length > 0 && (
-          <button type="button" className="btn btn-ghost" onClick={onClear}>
-            Clear
-          </button>
-        )}
-      </header>
+      <SubpageHeader title="History" count={entries.length} onBack={onBack} onClear={onClear} />
       {entries.length ? (
-        <ul className="divide-y">
+        <ul className="divide-y px-4">
           {entries.map((entry) => (
-            <li
-              className="rounded-md px-1 py-2 hover:bg-black/5"
-              key={`${entry.at}-${entry.url}-${entry.kind}`}
-            >
-              {ago(entry.at)} · {labels[entry.kind]} · {entry.title || entry.url}
+            <li className="flex items-center gap-3 py-2.5" key={`${entry.at}-${entry.url}-${entry.kind}`}>
+              <span className="min-w-0 flex-1">
+                <span className="block truncate">{entry.title || entry.url}</span>
+                <span className="block text-xs text-gray-500">
+                  {labels[entry.kind]} · {entry.reason === 'duplicate' ? 'duplicate' : 'idle'}
+                </span>
+              </span>
+              <span className="shrink-0 text-xs text-gray-500">{timeAgo(entry.at)}</span>
             </li>
           ))}
         </ul>
