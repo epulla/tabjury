@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { COPY } from '@/src/theme';
 import type { Browser } from 'wxt/browser';
 import { formatMinutes } from '@/src/ui/time';
+import { isProtected, type Tab as ClassifiedTab } from '@/src/core/classify';
 
 type Tab = Browser.tabs.Tab;
 
@@ -31,6 +32,16 @@ export default function FindingsView({ findings, settings, onRefresh }: Props) {
   const toggle = (id: number) =>
     setSelected((value) => (value.includes(id) ? value.filter((item) => item !== id) : [...value, id]));
   const selectedTabs = [...duplicateTabs, ...inactiveTabs].filter((tab) => selected.includes(tab.id!));
+  const keptReason = (tab: Tab) => {
+    const classifiedTab = tab as ClassifiedTab;
+    if (settings.protect.grouped && tab.groupId !== undefined && tab.groupId !== -1) return 'in a group';
+    if (settings.protect.pinned && !!tab.pinned) return 'pinned';
+    if (settings.protect.audible && !!tab.audible) return 'playing audio';
+    if (settings.protect.active && !!tab.active) return 'open now';
+    if (tab.lastAccessed && findings.at - tab.lastAccessed < settings.protect.recentMinutes * 60_000)
+      return 'used recently';
+    return isProtected(classifiedTab, settings, findings.at) ? 'protected site' : null;
+  };
   return (
     <>
       {dups.length > 0 && (
@@ -108,9 +119,13 @@ export default function FindingsView({ findings, settings, onRefresh }: Props) {
                 <span className="whitespace-nowrap text-xs text-gray-500">
                   {hit.idleMs === 0 ? 'asleep' : `idle ${formatMinutes(hit.idleMs / 60_000)}`}
                   {settings.inactive === 'close' &&
-                    (hit.idleMs / 60_000 >= settings.closeMinutes
-                      ? ' · closing soon'
-                      : ` · closes in ${formatMinutes(settings.closeMinutes - hit.idleMs / 60_000)}`)}
+                    (keptReason(hit.tab)
+                      ? ` · kept (${keptReason(hit.tab)})`
+                      : hit.idleMs === 0
+                        ? ''
+                        : hit.idleMs / 60_000 >= settings.closeMinutes
+                          ? ' · closing soon'
+                          : ` · closes in ${formatMinutes(settings.closeMinutes - hit.idleMs / 60_000)}`)}
                 </span>
               </li>
             ))}
