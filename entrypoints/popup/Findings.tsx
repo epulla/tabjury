@@ -4,6 +4,8 @@ import { addToBin } from '@/src/bg/bin';
 import { useState } from 'react';
 import { COPY } from '@/src/theme';
 import type { Browser } from 'wxt/browser';
+import { formatMinutes } from '@/src/ui/time';
+import { isProtected, type Tab as ClassifiedTab } from '@/src/core/classify';
 
 type Tab = Browser.tabs.Tab;
 
@@ -30,15 +32,25 @@ export default function FindingsView({ findings, settings, onRefresh }: Props) {
   const toggle = (id: number) =>
     setSelected((value) => (value.includes(id) ? value.filter((item) => item !== id) : [...value, id]));
   const selectedTabs = [...duplicateTabs, ...inactiveTabs].filter((tab) => selected.includes(tab.id!));
+  const keptReason = (tab: Tab) => {
+    const classifiedTab = tab as ClassifiedTab;
+    if (settings.protect.grouped && tab.groupId !== undefined && tab.groupId !== -1) return 'in a group';
+    if (settings.protect.pinned && !!tab.pinned) return 'pinned';
+    if (settings.protect.audible && !!tab.audible) return 'playing audio';
+    if (settings.protect.active && !!tab.active) return 'open now';
+    if (tab.lastAccessed && findings.at - tab.lastAccessed < settings.protect.recentMinutes * 60_000)
+      return 'used recently';
+    return isProtected(classifiedTab, settings, findings.at) ? 'protected site' : null;
+  };
   return (
     <>
       {dups.length > 0 && (
         <section className="mt-3">
           <header className="flex items-center justify-between">
-            <h2 className="font-semibold text-[var(--accent)]">Duplicates ({duplicateTabs.length})</h2>
+            <h2 className="font-semibold text-[var(--accent)]"><span aria-hidden="true">👥</span>{' '}Duplicates ({duplicateTabs.length})</h2>
             <span className="flex gap-2">
               <button type="button" className="btn" onClick={() => close(duplicateTabs, 'duplicate')}>
-                Close all extras
+                <span aria-hidden="true">🔨</span>{' '}Close all extras
               </button>
             </span>
           </header>
@@ -73,7 +85,7 @@ export default function FindingsView({ findings, settings, onRefresh }: Props) {
       {inactive.length > 0 && (
         <section className="mt-3">
           <header className="flex items-center justify-between">
-            <h2 className="font-semibold text-[var(--accent)]">Inactive ({inactive.length})</h2>
+            <h2 className="font-semibold text-[var(--accent)]"><span aria-hidden="true">💤</span>{' '}Inactive ({inactive.length})</h2>
             <span className="flex gap-2">
               <button
                 type="button"
@@ -85,7 +97,7 @@ export default function FindingsView({ findings, settings, onRefresh }: Props) {
                 Discard all
               </button>
               <button type="button" className="btn" onClick={() => close(inactiveTabs, 'inactive')}>
-                Close all
+                <span aria-hidden="true">🔨</span>{' '}Close all
               </button>
             </span>
           </header>
@@ -105,9 +117,15 @@ export default function FindingsView({ findings, settings, onRefresh }: Props) {
                 />
                 <span className="min-w-0 flex-1 truncate">{hit.tab.title || hit.tab.url}</span>
                 <span className="whitespace-nowrap text-xs text-gray-500">
-                  {hit.native
-                    ? 'discarded by Chrome'
-                    : `idle for ${Math.floor(hit.idleMs / 3_600_000)}h ${Math.floor((hit.idleMs % 3_600_000) / 60_000)}m`}
+                  {hit.idleMs === 0 ? 'asleep' : `idle ${formatMinutes(hit.idleMs / 60_000)}`}
+                  {settings.inactive === 'close' &&
+                    (keptReason(hit.tab)
+                      ? ` · kept (${keptReason(hit.tab)})`
+                      : hit.idleMs === 0
+                        ? ''
+                        : hit.idleMs / 60_000 >= settings.closeMinutes
+                          ? ' · closing soon'
+                          : ` · closes in ${formatMinutes(settings.closeMinutes - hit.idleMs / 60_000)}`)}
                 </span>
               </li>
             ))}
@@ -115,7 +133,7 @@ export default function FindingsView({ findings, settings, onRefresh }: Props) {
         </section>
       )}
       {!dups.length && !inactive.length && (
-        <p className="py-8 text-center text-gray-500">{COPY.docketClear}</p>
+        <p className="py-8 text-center text-gray-500"><span aria-hidden="true">✅</span>{' '}{COPY.docketClear}</p>
       )}
       {selectedTabs.length > 0 && (
         <button
@@ -133,7 +151,7 @@ export default function FindingsView({ findings, settings, onRefresh }: Props) {
             ])
           }
         >
-          Close selected ({selectedTabs.length})
+          <span aria-hidden="true">🔨</span>{' '}Close selected ({selectedTabs.length})
         </button>
       )}
     </>

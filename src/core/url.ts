@@ -1,5 +1,18 @@
 import type { Matching } from './settings';
 
+export function isBlankUrl(url: string | undefined): boolean {
+  return (
+    url === undefined ||
+    url === '' ||
+    url === 'about:blank' ||
+    url === 'about:newtab' ||
+    url === 'about:home' ||
+    url.startsWith('chrome://newtab') ||
+    url.startsWith('chrome://new-tab-page') ||
+    url.startsWith('edge://newtab')
+  );
+}
+
 export function normalizeUrl(url: string, m: Matching): string | null {
   let parsed: URL;
   try {

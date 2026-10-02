@@ -13,7 +13,7 @@ export const MODES: Record<Mode, { name: string; blurb: string; color: string }>
   },
   ultra: {
     name: 'Supreme Court',
-    blurb: 'Reuses open tabs, auto-closes duplicates, and discards inactive tabs.',
+    blurb: 'Reuses open tabs, auto-closes duplicates, and closes tabs left idle too long.',
     color: '#7c3aed',
   },
   custom: { name: 'Your Court', blurb: 'Your own mix of rules, set in Settings.', color: '#6b7280' },

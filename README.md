@@ -10,7 +10,7 @@ TabJury reuses open tabs, flags duplicate and inactive tabs, and recycles them a
 | ------------- | -------- | ---------------------------------------------------------------- |
 | Small Claims  | `lite`   | Reuses open tabs.                                                |
 | Trial Court   | `normal` | Reuses tabs and flags duplicates and inactive tabs.              |
-| Supreme Court | `ultra`  | Reuses tabs, auto-closes duplicates, and discards inactive tabs. |
+| Supreme Court | `ultra`  | Reuses tabs, auto-closes duplicates, and closes tabs left idle too long. |
 | Your Court    | `custom` | Uses your settings mix.                                          |
 
 ## How it decides
@@ -25,6 +25,7 @@ TabJury reuses open tabs, flags duplicate and inactive tabs, and recycles them a
 - New tabs briefly flicker before closing because Chrome cannot cancel tab creation.
 - Scans run every 30s; browser alarms have a floor.
 - Idle timer needs Chrome ≥121 (`lastAccessed`); frozen detection needs Chrome ≥132.
+- Idle close needs `lastAccessed` (Chrome ≥121); tabs without it are never closed for being idle.
 - Chrome exposes no per-tab memory information.
 - Chrome Web Store shows "Read your browsing history" because TabJury needs the `tabs` permission.
 - Auto-close skips `beforeunload` prompts, so unsaved form data is lost.

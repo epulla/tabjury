@@ -40,7 +40,7 @@ export const PRESETS: Record<
 > = {
   lite: { dedupeOnOpen: true, duplicates: 'off', inactive: 'off', autoClean: false },
   normal: { dedupeOnOpen: true, duplicates: 'detect', inactive: 'detect', autoClean: false },
-  ultra: { dedupeOnOpen: true, duplicates: 'auto', inactive: 'discard', autoClean: true },
+  ultra: { dedupeOnOpen: true, duplicates: 'auto', inactive: 'close', autoClean: true },
 };
 
 export const DEFAULTS: Settings = {
@@ -67,7 +67,7 @@ export function withChange(s: Settings, patch: Partial<Settings>): Settings {
   const result = { ...s, ...patch } as Settings;
   for (const key of ['matching', 'protect', 'auto', 'bin'] as const)
     if (patch[key]) result[key] = { ...s[key], ...patch[key] } as never;
-  if (result.inactive === 'close') result.closeMinutes = Math.max(120, result.closeMinutes);
+  if (result.inactive === 'close') result.closeMinutes = Math.max(5, result.closeMinutes);
   const preset = (Object.keys(PRESETS) as Array<Exclude<Mode, 'custom'>>).find(
     (mode) =>
       PRESETS[mode].dedupeOnOpen === result.dedupeOnOpen &&
@@ -121,5 +121,11 @@ export function migrate(raw: unknown): Settings {
           ? value
           : fallback;
   }
+  if (out.mode !== 'custom')
+    Object.assign(out, {
+      dedupeOnOpen: PRESETS[out.mode].dedupeOnOpen,
+      duplicates: PRESETS[out.mode].duplicates,
+      inactive: PRESETS[out.mode].inactive,
+    });
   return out;
 }

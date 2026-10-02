@@ -28,10 +28,13 @@ beforeEach(async () => {
   await registerDedupe();
 });
 // fake tabs.create auto-fires onCreated with url set (looks like a clone); mute it and fire the realistic shape
-const open = async (url: string, { active = false, clone = false, pending = true } = {}) => {
+const open = async (
+  url: string,
+  { active = false, clone = false, pending = true, windowId = 1 } = {},
+) => {
   const fire = fakeBrowser.tabs.onCreated.trigger.bind(fakeBrowser.tabs.onCreated);
   fakeBrowser.tabs.onCreated.trigger = async () => [];
-  const tab = await realCreate({ url, windowId: 1, active });
+  const tab = await realCreate({ url, windowId, active });
   fakeBrowser.tabs.onCreated.trigger = fire;
   if (active) forcedActive.add(tab.id!);
   await fire({ ...tab, url: clone ? url : '', pendingUrl: clone || !pending ? undefined : url });
@@ -81,6 +84,26 @@ describe('dedupe', () => {
     const a = await open('https://x.com/p'),
       b = await open('https://x.com/p', { pending: false });
     await fakeBrowser.tabs.onUpdated.trigger(b.id!, { status: 'complete' }, b);
+    expect((await fakeBrowser.tabs.query({})).map((tab) => tab.id)).toEqual([a.id]);
+  });
+  it('dedupes ultra navigation from new-tab page', async () => {
+    await settingsItem.setValue({ ...settingsItem.fallback, mode: 'ultra', autoClean: true });
+    const a = await open('https://a.com', { active: true });
+    const b = await open('chrome://newtab/', { pending: false });
+    await fakeBrowser.tabs.onUpdated.trigger(b.id!, { status: 'complete' }, { ...b, url: 'chrome://newtab/' });
+    await fakeBrowser.tabs.onUpdated.trigger(b.id!, { url: 'https://a.com' }, { ...b, url: 'https://a.com' });
+    expect((await fakeBrowser.tabs.query({})).map((tab) => tab.id)).toEqual([a.id]);
+  });
+  it('dedupes ultra across windows despite window scope', async () => {
+    await settingsItem.setValue({
+      ...settingsItem.fallback,
+      mode: 'ultra',
+      autoClean: true,
+      dedupeScope: 'window',
+    });
+    const a = await open('https://a.com', { active: true, windowId: 2 });
+    const b = await open('https://a.com', { windowId: 1 });
+    await fakeBrowser.tabs.onUpdated.trigger(b.id!, { url: b.url }, b);
     expect((await fakeBrowser.tabs.query({})).map((tab) => tab.id)).toEqual([a.id]);
   });
   it('restores bin entry', async () => {

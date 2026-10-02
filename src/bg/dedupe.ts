@@ -1,6 +1,6 @@
 import type { Tab } from '../core/classify';
 import { findAlibi } from '../core/alibi';
-import { normalizeUrl } from '../core/url';
+import { isBlankUrl, normalizeUrl } from '../core/url';
 import { addToBin } from './bin';
 import { freshTabs, getSettings, lastDedupe, pausedUntil, recentlyDeduped } from './state';
 const fresh = new Map<number, string | undefined>();
@@ -9,7 +9,7 @@ export async function registerDedupe(): Promise<void> {
   fresh.clear();
   browser.tabs.onCreated.addListener(async (tab) => {
     if (tab.id === undefined) return;
-    fresh.set(tab.id, tab.url);
+    fresh.set(tab.id, isBlankUrl(tab.url) ? undefined : tab.url);
     mirror();
     if (tab.pendingUrl) await handle(tab, tab.pendingUrl);
   });
@@ -18,8 +18,10 @@ export async function registerDedupe(): Promise<void> {
     if (change.url) await handle(tab, change.url);
     if (change.status !== 'complete') return;
     await handle(tab, tab.url ?? '');
-    fresh.delete(id);
-    mirror();
+    if (!isBlankUrl(tab.url)) {
+      fresh.delete(id);
+      mirror();
+    }
   });
   browser.tabs.onRemoved.addListener((id) => {
     fresh.delete(id);
@@ -36,7 +38,8 @@ async function handle(tab: Tab, url: string): Promise<void> {
   if (!s.dedupeOnOpen || !key) return;
   const host = new URL(key).hostname;
   if (s.protect.domains.some((d) => host === d.toLowerCase() || host.endsWith(`.${d.toLowerCase()}`))) return;
-  const tabs = await browser.tabs.query(s.dedupeScope === 'window' ? { windowId: tab.windowId } : {});
+  const scope = s.mode === 'ultra' ? 'all' : s.dedupeScope;
+  const tabs = await browser.tabs.query(scope === 'window' ? { windowId: tab.windowId } : {});
   const same = (t: Tab) =>
     t.id !== tab.id && t.incognito === tab.incognito && normalizeUrl(t.url ?? '', s.matching) === key;
   const existing = tabs
@@ -62,7 +65,7 @@ async function handle(tab: Tab, url: string): Promise<void> {
     return;
   recent[key] = now;
   await recentlyDeduped.setValue(recent);
-  if (s.dedupeScope === 'all' && existing.windowId !== tab.windowId)
+  if (scope === 'all' && existing.windowId !== tab.windowId)
     s.crossWindow === 'move'
       ? await browser.tabs.move(existing.id!, { windowId: tab.windowId, index: -1 })
       : await browser.windows.update(existing.windowId, { focused: true });
