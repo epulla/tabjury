@@ -13,6 +13,7 @@ import { applyPreset, PRESETS, withChange, type Mode } from '@/src/core/settings
 import { accentFor, COPY, modeDetails, MODES } from '@/src/theme';
 import Switch from '@/src/ui/Switch';
 import { useItem } from '@/src/ui/useItem';
+import { formatMinutes } from '@/src/ui/time';
 import Findings from './Findings';
 import Bin from './Bin';
 import History from './History';
@@ -29,6 +30,8 @@ export default function App() {
     [showHistory, setShowHistory] = useState(false),
     [showPause, setShowPause] = useState(false),
     [showInfo, setShowInfo] = useState(false),
+    [editingClose, setEditingClose] = useState(false),
+    [closeMinutes, setCloseMinutes] = useState(String(settings.closeMinutes)),
     now = Date.now(),
     minutes = Math.max(1, Math.ceil((paused - now) / 60_000));
   const refresh = () => scan().then(() => undefined);
@@ -120,6 +123,56 @@ export default function App() {
                   onChange={(autoClean) => setSettings(withChange(settings, { autoClean }))}
                   label="Automatically close duplicate tabs and tidy up inactive tabs"
                 />
+              </div>
+            )}
+            {settings.inactive === 'close' && (
+              <div className="mt-2">
+                {editingClose ? (
+                  <form
+                    className="flex items-center gap-1"
+                    onSubmit={(event) => {
+                      event.preventDefault();
+                      const n = Number(closeMinutes);
+                      if (!Number.isFinite(n)) return;
+                      setSettings(withChange(settings, { closeMinutes: Math.max(5, n) }));
+                      setEditingClose(false);
+                    }}
+                  >
+                    <input
+                      type="number"
+                      min={5}
+                      className="field w-20"
+                      aria-label="Minutes idle before closing"
+                      value={closeMinutes}
+                      onChange={(event) => setCloseMinutes(event.target.value)}
+                    />
+                    <span>min</span>
+                    <button type="submit" className="btn btn-primary">
+                      Save
+                    </button>
+                    <button type="button" className="btn btn-ghost" onClick={() => setEditingClose(false)}>
+                      Cancel
+                    </button>
+                  </form>
+                ) : (
+                  <div className="flex items-center gap-1 text-xs text-gray-600">
+                    <span>Closes tabs idle for {formatMinutes(settings.closeMinutes)}</span>
+                    <button
+                      type="button"
+                      className="btn btn-ghost"
+                      aria-label="Change idle time"
+                      onClick={() => {
+                        setCloseMinutes(String(settings.closeMinutes));
+                        setEditingClose(true);
+                      }}
+                    >
+                      ✎
+                    </button>
+                  </div>
+                )}
+                {settings.protect.grouped && (
+                  <p className="mt-1 text-xs text-gray-500">Tabs in groups, pinned, or playing audio are kept.</p>
+                )}
               </div>
             )}
             {autoOn(settings) && pending.length > 0 && (

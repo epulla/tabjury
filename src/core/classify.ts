@@ -43,7 +43,7 @@ export function findInactive(tabs: Tab[], s: Settings, now: number): InactiveHit
       if (tab.active || !tabKey(tab, s)) return [];
       const native = !!(tab.discarded || tab.frozen),
         idleMs = tab.lastAccessed ? now - tab.lastAccessed : 0;
-      const stale = tab.lastAccessed !== undefined && idleMs > s.inactiveMinutes * 60_000;
+      const stale = tab.lastAccessed !== undefined && idleMs > (s.inactive === 'close' ? Math.min(s.inactiveMinutes, s.closeMinutes) : s.inactiveMinutes) * 60_000;
       const include =
         s.inactiveSource === 'native'
           ? native

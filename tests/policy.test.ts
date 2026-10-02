@@ -56,6 +56,18 @@ describe('policy', () => {
       { kind: 'close', tabId: 2, reason: 'inactive' },
       { kind: 'discard', tabId: 3, reason: 'inactive' },
     ]));
+  it('closes discarded idle tabs but skips grouped tabs', () =>
+    expect(
+      decide(
+        [],
+        [
+          hit(tab({ id: 2, discarded: true }), 11 * 60_000),
+          hit(tab({ id: 3, groupId: 3 }), 11 * 60_000),
+        ],
+        settings({ inactive: 'close', closeMinutes: 10 }),
+        0,
+      ),
+    ).toEqual([{ kind: 'close', tabId: 2, reason: 'inactive' }]));
   it('lets duplicate close win across lists', () =>
     expect(
       decide(

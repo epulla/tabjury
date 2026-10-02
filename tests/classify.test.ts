@@ -64,6 +64,10 @@ describe('classify', () => {
       findInactive(tabs, { ...DEFAULTS, inactiveSource: source as never, inactiveMinutes: 1 }, now),
     ).toHaveLength(found ? 1 : 0);
   });
+  it('uses closeMinutes as stale threshold in close mode', () => {
+    const s = { ...DEFAULTS, inactive: 'close' as const, closeMinutes: 10, inactiveMinutes: 60, inactiveSource: 'timer' as const };
+    expect(findInactive([tab({ lastAccessed: 1 })], s, 11 * 60_000)).toHaveLength(1);
+  });
   it('skips active tabs and sorts by idle time', () => {
     const now = 100_000,
       s = { ...DEFAULTS, inactiveSource: 'timer' as const, inactiveMinutes: 1 };

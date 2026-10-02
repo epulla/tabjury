@@ -127,16 +127,21 @@ export default function Form({
           </select>
         </label>
         {settings.inactive === 'close' && (
-          <label className="mt-2 block">
-            Close after (minutes){' '}
-            <input
-              className="field ml-2 w-20"
-              type="number"
-              min="120"
-              value={settings.closeMinutes}
-              onChange={(e) => setSettings(withChange(settings, { closeMinutes: Number(e.target.value) }))}
-            />
-          </label>
+          <>
+            <label className="mt-2 block">
+              Close after (minutes){' '}
+              <input
+                className="field ml-2 w-20"
+                type="number"
+                min="5"
+                value={settings.closeMinutes}
+                onChange={(e) => setSettings(withChange(settings, { closeMinutes: Number(e.target.value) }))}
+              />
+            </label>
+            <p className="text-xs text-gray-500">
+              Tabs idle this long are closed, even if the browser already put them to sleep. Protected tabs are skipped.
+            </p>
+          </>
         )}
         <p className="mt-2 text-xs text-gray-500">Auto options only run when automatic cleanup is on.</p>
       </fieldset>

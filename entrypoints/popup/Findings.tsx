@@ -4,6 +4,7 @@ import { addToBin } from '@/src/bg/bin';
 import { useState } from 'react';
 import { COPY } from '@/src/theme';
 import type { Browser } from 'wxt/browser';
+import { formatMinutes } from '@/src/ui/time';
 
 type Tab = Browser.tabs.Tab;
 
@@ -105,9 +106,11 @@ export default function FindingsView({ findings, settings, onRefresh }: Props) {
                 />
                 <span className="min-w-0 flex-1 truncate">{hit.tab.title || hit.tab.url}</span>
                 <span className="whitespace-nowrap text-xs text-gray-500">
-                  {hit.native
-                    ? 'discarded by Chrome'
-                    : `idle for ${Math.floor(hit.idleMs / 3_600_000)}h ${Math.floor((hit.idleMs % 3_600_000) / 60_000)}m`}
+                  {hit.idleMs === 0 ? 'asleep' : `idle ${formatMinutes(hit.idleMs / 60_000)}`}
+                  {settings.inactive === 'close' &&
+                    (hit.idleMs / 60_000 >= settings.closeMinutes
+                      ? ' · closing soon'
+                      : ` · closes in ${formatMinutes(settings.closeMinutes - hit.idleMs / 60_000)}`)}
                 </span>
               </li>
             ))}
