@@ -44,6 +44,7 @@ Before finishing a change, run `pnpm compile && pnpm test`. The repo has no lint
 - `src/theme.ts`: mode names, colors, and user-facing mode descriptions.
 - `src/ui/`: shared React hooks and components (`useItem`, `Switch`).
 - `tests/`: Vitest with `wxt/testing/fake-browser`.
+- `.agents/skills/`: installed agent skills, pinned in `skills-lock.json`; `.claude/skills/` symlinks to them.
 
 ## Domain rules
 
