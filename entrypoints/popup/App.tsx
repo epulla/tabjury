@@ -20,7 +20,7 @@ import Bin from './Bin';
 import History from './History';
 
 export default function App() {
-  const [settings, setSettings] = useItem(settingsItem),
+  const [settings, setSettings, loaded] = useItem(settingsItem),
     [findings] = useItem(findingsItem),
     [paused, setPaused] = useItem(pausedUntil),
     [dedupe, setDedupe] = useItem(lastDedupe),
@@ -32,10 +32,12 @@ export default function App() {
     [showPause, setShowPause] = useState(false),
     [showInfo, setShowInfo] = useState(false),
     [editingClose, setEditingClose] = useState(false),
+    [animatePill, setAnimatePill] = useState(false),
     [closeMinutes, setCloseMinutes] = useState(String(settings.closeMinutes)),
     now = Date.now(),
     minutes = Math.max(1, Math.ceil((paused - now) / 60_000));
   const refresh = () => scan().then(() => undefined);
+  if (!loaded) return null;
   return (
     <main className="app-bg w-96 text-sm" style={{ '--accent': accentFor(settings) } as CSSProperties}>
       {showBin ? (
@@ -73,6 +75,7 @@ export default function App() {
                 <span
                   className="seg-pill"
                   aria-hidden="true"
+                  data-animate={animatePill || undefined}
                   style={{
                     '--seg-i': ['lite', 'normal', 'ultra', 'custom'].indexOf(settings.mode),
                     '--seg-n': 4,
@@ -88,6 +91,7 @@ export default function App() {
                     title={`${MODES[mode].name}: ${MODES[mode].blurb}`}
                     onClick={() => {
                       if (settings.mode === mode) return;
+                      setAnimatePill(true);
                       setSettings(
                         mode === 'custom' ? { ...settings, mode, autoClean: false } : applyPreset(settings, mode),
                       );
