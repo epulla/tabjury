@@ -21,7 +21,7 @@ export const MODES: Record<Mode, { name: string; blurb: string; color: string; e
   },
   custom: {
     name: 'Your Court',
-    blurb: 'Your own mix of rules, set in Settings.',
+    blurb: 'Your court, your rules. Open Settings to choose them.',
     color: '#6b7280',
     emoji: '🛠️',
   },

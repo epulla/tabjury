@@ -34,6 +34,8 @@
   .bench .seg-item { color: rgb(248 241 227 / .75); }
   .bench .seg-item:hover:not(:disabled), .bench .seg-item[aria-pressed="true"] { color: white; }
   .bench .field { color: #2b1d14; }
+  .bench .btn-brass { border-color: #d9b45a; background: rgb(0 0 0 / .2); color: #f3dc94; font-weight: 600; }
+  .bench .btn-brass:hover { border-color: #e6c66a; background: #e6c66a; color: #3c2212; }
   .watermark { pointer-events: none; position: absolute; right: .75rem; bottom: 3.75rem; width: 7.5rem; color: #8a5a35; opacity: .09; z-index: -1; }
   .field { border: 1px solid #d8c8ad; border-radius: .5rem; background: white; padding: .25rem .5rem; }
   .field:focus { outline: 2px solid color-mix(in srgb, var(--accent) 60%, transparent); border-color: var(--accent); }
@@ -48,6 +50,8 @@
   .shimmer::after { position: absolute; inset: 0; background: linear-gradient(110deg, transparent 35%, rgb(255 236 200 / .14), transparent 65%); content: ''; animation: shimmer 5s infinite; pointer-events: none; }
   @keyframes gavel { 0% { transform: rotate(-25deg) scale(.9); } 65% { transform: rotate(10deg) scale(1.12); } 100% { transform: rotate(0) scale(1); } }
   @keyframes badge-pop { 0% { opacity: 0; transform: scale(.8); } 70% { transform: scale(1.08); } 100% { opacity: 1; transform: scale(1); } }
+  .nudge { animation: nudge 1.2s ease-out 2; }
+  @keyframes nudge { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 55%, transparent); } 100% { box-shadow: 0 0 0 8px transparent; } }
   @keyframes shimmer { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
 }
 

@@ -128,6 +128,15 @@ export default function App() {
                   ))}
                 </div>
               )}
+              {settings.mode === 'custom' && (
+                <button
+                  type="button"
+                  className="btn btn-brass mt-3 w-full justify-center py-1.5"
+                  onClick={() => browser.runtime.openOptionsPage()}
+                >
+                  Set your rules <span aria-hidden="true">→</span>
+                </button>
+              )}
               {settings.mode !== 'lite' && (
                 <div className="mt-3">
                   <Switch
@@ -296,9 +305,11 @@ export default function App() {
               </button>
               <button
                 type="button"
-                className="btn btn-ghost whitespace-nowrap"
+                key={settings.mode === 'custom' ? 'custom' : 'preset'}
+                className={`btn whitespace-nowrap ${settings.mode === 'custom' ? 'btn-primary nudge' : 'btn-ghost'}`}
                 onClick={() => browser.runtime.openOptionsPage()}
               >
+                {settings.mode === 'custom' && <span aria-hidden="true">✎</span>}
                 Settings
               </button>
             </footer>
