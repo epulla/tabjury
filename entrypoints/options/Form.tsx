@@ -1,6 +1,8 @@
 import { applyPreset, PRESETS, withChange, type Mode, type Settings } from '@/src/core/settings';
-import { modeDetails, MODES, SWATCHES } from '@/src/theme';
+import { autoCleanLabel, modeDetails, MODES, SWATCHES } from '@/src/theme';
+import { toDomain } from '@/src/core/url';
 import Switch from '@/src/ui/Switch';
+import { useEffect, useState } from 'react';
 
 export default function Form({
   settings,
@@ -9,6 +11,10 @@ export default function Form({
   settings: Settings;
   setSettings: (value: Settings) => Promise<void>;
 }) {
+  const domainsKey = settings.protect.domains.join('\n');
+  const [domainsDraft, setDomainsDraft] = useState(domainsKey);
+  useEffect(() => setDomainsDraft(domainsKey), [domainsKey]);
+
   return (
     <form>
       <fieldset className="mt-6">
@@ -20,7 +26,7 @@ export default function Form({
               className="rounded-lg border border-l-4 p-3 cursor-pointer"
               style={{
                 borderLeftColor: mode === 'custom' ? SWATCHES[settings.customColor] : MODES[mode].color,
-                background: `color-mix(in srgb, ${mode === 'custom' ? SWATCHES[settings.customColor] : MODES[mode].color} 8%, white)`,
+                background: `color-mix(in srgb, ${mode === 'custom' ? SWATCHES[settings.customColor] : MODES[mode].color} 8%, #fffaf0)`,
                 ...(settings.mode === mode && {
                   boxShadow: `0 0 0 2px ${mode === 'custom' ? SWATCHES[settings.customColor] : MODES[mode].color}`,
                 }),
@@ -39,6 +45,7 @@ export default function Form({
                 }
               />
               <strong>
+                <span aria-hidden="true">{MODES[mode].emoji}</span>{' '}
                 {MODES[mode].name} ({mode})
               </strong>
               <span className="mt-1 block text-xs text-gray-500">{MODES[mode].blurb}</span>
@@ -345,36 +352,29 @@ export default function Form({
           />
         </label>
         <label className="mt-2 block">
-          Domains (one per line)
+          Websites to never close (one per line, e.g. mail.google.com)
           <textarea
             className="field mt-1 block w-full"
             rows={4}
-            value={settings.protect.domains.join('\n')}
-            onChange={(e) =>
-              setSettings(
-                withChange(settings, {
-                  protect: {
-                    ...settings.protect,
-                    domains: e.target.value
-                      .split('\n')
-                      .map((domain) => domain.trim())
-                      .filter(Boolean),
-                  },
-                }),
-              )
-            }
+            value={domainsDraft}
+            onChange={(e) => setDomainsDraft(e.target.value)}
+            onBlur={() => {
+              const domains = [...new Set(domainsDraft.split('\n').map(toDomain).filter(Boolean))];
+              setDomainsDraft(domains.join('\n'));
+              setSettings(withChange(settings, { protect: { ...settings.protect, domains } }));
+            }}
           />
         </label>
       </fieldset>
 
       <fieldset className="mt-6">
         <legend className="font-semibold text-[var(--accent)]">Automatic cleanup</legend>
-        {(settings.mode === 'ultra' || settings.mode === 'custom') && (
+        {settings.mode !== 'lite' && (
           <div className="mt-2">
             <Switch
               checked={settings.autoClean}
               onChange={(autoClean) => setSettings(withChange(settings, { autoClean }))}
-              label="Automatically close duplicate tabs and tidy up inactive tabs"
+              label={autoCleanLabel(settings)}
             />
           </div>
         )}
@@ -441,7 +441,7 @@ export default function Form({
       </fieldset>
 
       <footer className="mt-6 border-t pt-4">
-        Keyboard shortcut: Alt+Shift+P pauses for 15 min ·{' '}
+        Keyboard shortcut: Alt+Shift+P starts a 15-minute recess ·{' '}
         <button
           className="btn"
           type="button"

@@ -21,7 +21,7 @@ export default function BinView({
 }) {
   return (
     <section>
-      <SubpageHeader title="Recently closed" count={entries.length} onBack={onBack} onClear={onClear} icon="📁" />
+      <SubpageHeader title="Recently closed" count={entries.length} onBack={onBack} onClear={onClear} />
       {entries.length ? (
         <ul className="divide-y px-4">
           {entries.map((entry) => (
@@ -44,7 +44,7 @@ export default function BinView({
           ))}
         </ul>
       ) : (
-        <p className="py-8 text-center text-gray-500"><span aria-hidden="true">🕊️</span>{' '}No appeals pending.</p>
+        <p className="py-8 text-center text-gray-500">No appeals pending.</p>
       )}
     </section>
   );

@@ -38,8 +38,8 @@ export const PRESETS: Record<
   Exclude<Mode, 'custom'>,
   Pick<Settings, 'dedupeOnOpen' | 'duplicates' | 'inactive' | 'autoClean'>
 > = {
-  lite: { dedupeOnOpen: true, duplicates: 'off', inactive: 'off', autoClean: false },
-  normal: { dedupeOnOpen: true, duplicates: 'detect', inactive: 'detect', autoClean: false },
+  lite: { dedupeOnOpen: true, duplicates: 'detect', inactive: 'off', autoClean: false },
+  normal: { dedupeOnOpen: true, duplicates: 'detect', inactive: 'discard', autoClean: true },
   ultra: { dedupeOnOpen: true, duplicates: 'auto', inactive: 'close', autoClean: true },
 };
 
@@ -75,7 +75,7 @@ export function withChange(s: Settings, patch: Partial<Settings>): Settings {
       PRESETS[mode].inactive === result.inactive,
   );
   if (Object.keys(patch).some((key) => ['dedupeOnOpen', 'duplicates', 'inactive'].includes(key))) {
-    result.mode = preset ? (patch.mode ?? s.mode) : 'custom';
+    result.mode = preset ? (patch.mode ?? (s.mode === 'custom' ? 'custom' : preset)) : 'custom';
     if (result.mode === 'custom' && s.mode !== 'custom') result.autoClean = false;
   }
   return result;

@@ -24,7 +24,7 @@ const group = (extras: Tab[]): DupGroup => ({ key: 'x', keep: tab({ id: 99 }), e
 
 describe('policy', () => {
   it('produces nothing for detect levels', () =>
-    expect(decide([group([tab({ id: 2 })])], [hit(tab({ id: 3 }), 1)], settings(), 0)).toEqual([]));
+    expect(decide([group([tab({ id: 2 })])], [hit(tab({ id: 3 }), 1)], settings({ inactive: 'detect' }), 0)).toEqual([]));
   it('closes auto duplicate extras and skips protected extras', () => {
     expect(
       decide(

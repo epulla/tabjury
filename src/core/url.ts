@@ -13,6 +13,26 @@ export function isBlankUrl(url: string | undefined): boolean {
   );
 }
 
+/** Turns a typed entry like `https://www.Mail.google.com/u/0` into `mail.google.com`; '' if unusable. */
+export function toDomain(input: string): string {
+  const text = input.trim();
+  if (!text) return '';
+  try {
+    const host = new URL(/^[a-z][a-z\d+.-]*:\/\//i.test(text) ? text : `https://${text}`).hostname;
+    return host.toLowerCase().replace(/^www\./, '').replace(/\.$/, '');
+  } catch {
+    return '';
+  }
+}
+
+export function onProtectedDomain(hostname: string, domains: string[]): boolean {
+  const host = hostname.toLowerCase();
+  return domains.some((entry) => {
+    const domain = toDomain(entry);
+    return domain !== '' && (host === domain || host.endsWith(`.${domain}`));
+  });
+}
+
 export function normalizeUrl(url: string, m: Matching): string | null {
   let parsed: URL;
   try {

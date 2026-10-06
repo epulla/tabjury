@@ -6,10 +6,13 @@ describe('settings', () => {
     expect(applyPreset(DEFAULTS, mode)).toMatchObject({ mode, ...PRESETS[mode] });
   });
   it.each([
-    [{ duplicates: 'auto' }, 'custom'],
-    [{ inactive: 'detect' }, 'normal'],
-    [{ mode: 'lite', duplicates: 'off', inactive: 'off' }, 'lite'],
-  ])('changes preset state', (patch, mode) => expect(withChange(DEFAULTS, patch as never).mode).toBe(mode));
+    [DEFAULTS, { duplicates: 'auto' }, 'custom'],
+    [DEFAULTS, { inactive: 'discard' }, 'normal'],
+    [DEFAULTS, { mode: 'lite', duplicates: 'detect', inactive: 'off' }, 'lite'],
+    [applyPreset(DEFAULTS, 'lite'), { inactive: 'discard' }, 'normal'],
+  ])('changes preset state', (settings, patch, mode) =>
+    expect(withChange(settings, patch as never).mode).toBe(mode),
+  );
   it('clamps close duration', () => {
     expect(withChange(DEFAULTS, { inactive: 'close', closeMinutes: 1 }).closeMinutes).toBe(5);
     expect(withChange(DEFAULTS, { inactive: 'close', closeMinutes: 2 }).closeMinutes).toBe(5);

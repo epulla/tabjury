@@ -2,6 +2,7 @@ import type { CSSProperties } from 'react';
 import { settingsItem } from '@/src/bg/state';
 import { applyPreset, type Mode } from '@/src/core/settings';
 import { accentFor, MODES } from '@/src/theme';
+import Courtroom from '@/src/ui/Courtroom';
 import { useItem } from '@/src/ui/useItem';
 
 export default function App() {
@@ -9,20 +10,18 @@ export default function App() {
   const modes: Array<Exclude<Mode, 'custom'>> = ['lite', 'normal', 'ultra'];
 
   return (
-    <div className="app-bg min-h-screen" style={{ '--accent': accentFor(settings) } as CSSProperties}>
-      <main className="mx-auto max-w-xl p-8 text-sm text-gray-900">
+    <div className="app-bg relative isolate min-h-screen" style={{ '--accent': accentFor(settings) } as CSSProperties}>
+      <Courtroom />
+      <main className="mx-auto max-w-xl p-8 text-sm">
         <h1 className="mb-8 text-2xl font-semibold">
           Welcome to <span style={{ color: 'var(--accent)' }}>TabJury</span>
         </h1>
         <section className="mb-8">
           <h2 className="mb-3 text-lg font-semibold">You've been summoned</h2>
           <ul className="list-disc space-y-2 pl-5">
-            <li>Reuses an already-open tab when you open the same link again.</li>
-            <li>Flags duplicate and inactive tabs in the popup.</li>
-            <li>
-              In Supreme Court mode, auto-closes duplicates and puts inactive tabs to sleep. Turn it off with
-              the switch in the popup.
-            </li>
+            <li>Claims Court reuses an already-open tab and flags duplicate tabs.</li>
+            <li>Trial Court adds putting tabs you haven't used in a while to sleep automatically.</li>
+            <li>Supreme Court adds closing duplicate tabs and inactive tabs. Turn automatic cleanup off with the switch.</li>
           </ul>
         </section>
         <section className="mb-8">
@@ -35,7 +34,7 @@ export default function App() {
                 className="flex cursor-pointer gap-3 rounded-lg border border-l-4 p-3"
                 style={{
                   borderLeftColor: MODES[id].color,
-                  background: `color-mix(in srgb, ${MODES[id].color} 8%, white)`,
+                  background: `color-mix(in srgb, ${MODES[id].color} 8%, #fffaf0)`,
                   ...(settings.mode === id && { boxShadow: `0 0 0 2px ${MODES[id].color}` }),
                 }}
               >
@@ -48,7 +47,7 @@ export default function App() {
                 />
                 <span>
                   <span className="font-medium">
-                    {MODES[id].name} ({id})
+                    <span aria-hidden="true">{MODES[id].emoji}</span>{' '}{MODES[id].name} ({id})
                   </span>
                   <span className="block text-gray-600">{MODES[id].blurb}</span>
                 </span>
@@ -75,7 +74,7 @@ export default function App() {
             </button>
           </div>
         </section>
-        <footer className="text-gray-600">Shortcut: Alt+Shift+P pauses TabJury for 15 minutes.</footer>
+        <footer className="text-gray-600">Shortcut: Alt+Shift+P starts a 15-minute recess.</footer>
       </main>
     </div>
   );

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isBlankUrl, normalizeUrl } from '../src/core/url';
+import { isBlankUrl, normalizeUrl, onProtectedDomain, toDomain } from '../src/core/url';
 import type { Matching } from '../src/core/settings';
 
 const base: Matching = {
@@ -37,4 +37,25 @@ describe('isBlankUrl', () => {
     ['https://example.com', false],
     ['chrome://tabs/', false],
   ])('%s is blank: %s', (url, expected) => expect(isBlankUrl(url)).toBe(expected));
+});
+
+describe('toDomain', () => {
+  it.each([
+    ['https://web.whatsapp.com/', 'web.whatsapp.com'],
+    ['http://Mail.Google.com:8080/u/0?x=1#inbox', 'mail.google.com'],
+    ['www.example.com', 'example.com'],
+    ['  example.com  ', 'example.com'],
+    ['example.com/path', 'example.com'],
+    ['not a site', ''],
+    ['', ''],
+  ])('%s -> %s', (input, expected) => expect(toDomain(input)).toBe(expected));
+});
+
+describe('onProtectedDomain', () => {
+  it('matches subdomains of a bare domain', () =>
+    expect(onProtectedDomain('mail.google.com', ['google.com'])).toBe(true));
+  it('matches entries saved as full URLs', () =>
+    expect(onProtectedDomain('web.whatsapp.com', ['https://web.whatsapp.com/'])).toBe(true));
+  it('does not match lookalike hosts', () =>
+    expect(onProtectedDomain('notgoogle.com', ['google.com'])).toBe(false));
 });
