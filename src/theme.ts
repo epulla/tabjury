@@ -3,12 +3,12 @@ import type { Mode, Settings } from './core/settings';
 export const MODES: Record<Mode, { name: string; blurb: string; color: string }> = {
   lite: {
     name: 'Small Claims',
-    blurb: 'Reuses an open tab instead of opening the same link twice.',
+    blurb: 'Reuses an open tab instead of opening the same link twice, and flags duplicate tabs.',
     color: '#06b6d4',
   },
   normal: {
     name: 'Trial Court',
-    blurb: 'Reuses open tabs and flags duplicate and inactive tabs for you to review.',
+    blurb: "Everything in Claims Court, plus puts tabs you haven't used in a while to sleep. Nothing is closed.",
     color: '#16a34a',
   },
   ultra: {
@@ -22,7 +22,7 @@ export const MODES: Record<Mode, { name: string; blurb: string; color: string }>
 export const modeDetails = (s: Pick<Settings, 'dedupeOnOpen' | 'duplicates' | 'inactive'>) => [
   `Same link again: ${s.dedupeOnOpen ? 'reuses the open tab' : 'opens a new tab'}`,
   `Duplicates: ${{ off: 'ignored', detect: 'flagged', auto: 'auto-closed' }[s.duplicates]}`,
-  `Inactive tabs: ${{ off: 'ignored', detect: 'flagged', discard: 'discarded', close: 'closed' }[s.inactive]}`,
+  `Inactive tabs: ${{ off: 'ignored', detect: 'flagged', discard: 'put to sleep', close: 'closed' }[s.inactive]}`,
 ];
 
 export const SWATCHES: Record<string, string> = {

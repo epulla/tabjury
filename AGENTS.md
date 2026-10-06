@@ -51,7 +51,7 @@ Before finishing a change, run `pnpm compile && pnpm test`. The repo has no lint
 - Modes: `lite`, `normal`, `ultra`, `custom`. The mode is derived from settings: `withChange`
   recomputes it and switches to `custom` when a preset rule no longer matches. Always write
   settings through `applyPreset` or `withChange`, never by spreading raw objects.
-- `autoClean` switch: on by default in Ultra, off in Custom. Automatic close/discard only runs
+- `autoClean` switch: on by default in Normal and Ultra, off in Custom. Automatic close/discard only runs
   when it is on (`autoOn`).
 - Ultra always reuses the open tab. Only pause and protected domains let a duplicate open.
 - Settings live in `sync:settings`. When you add or remove a field, update `DEFAULTS` and

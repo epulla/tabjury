@@ -8,8 +8,8 @@ TabJury reuses open tabs, flags duplicate and inactive tabs, and recycles them a
 
 | Court         | ID       | Behavior                                                         |
 | ------------- | -------- | ---------------------------------------------------------------- |
-| Small Claims  | `lite`   | Reuses open tabs.                                                |
-| Trial Court   | `normal` | Reuses tabs and flags duplicates and inactive tabs.              |
+| Small Claims  | `lite`   | Reuses open tabs and flags duplicate tabs.                       |
+| Trial Court   | `normal` | Everything in Small Claims, plus puts inactive tabs to sleep.    |
 | Supreme Court | `ultra`  | Reuses tabs, auto-closes duplicates, and closes tabs left idle too long. |
 | Your Court    | `custom` | Uses your settings mix.                                          |
 
@@ -18,7 +18,7 @@ TabJury reuses open tabs, flags duplicate and inactive tabs, and recycles them a
 - Matches URLs after stripping tracking parameters and ignoring trailing slashes; hashes stay by default.
 - Allows intentional duplicates in Lite, Normal and Custom when you duplicate a tab or re-open the same link within 15s after a reuse ("two strikes"). Ultra always reuses the open tab. Pause and protected domains always allow duplicates.
 - Protects the active tab, pinned tabs, tabs playing audio, tabs in groups, tabs used in the last 5 minutes, and domains listed in Settings.
-- Auto actions run only when the automatic cleanup switch is on (on by default in Ultra, off in Custom). They wait 60s, handle at most 5 tabs per scan, and send closed tabs to Recently closed.
+- Auto actions run only when the automatic cleanup switch is on (on by default in Normal and Ultra, off in Custom). They wait 60s, handle at most 5 tabs per scan, and send closed tabs to Recently closed.
 
 ## Known limits
 

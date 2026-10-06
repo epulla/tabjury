@@ -17,12 +17,9 @@ export default function App() {
         <section className="mb-8">
           <h2 className="mb-3 text-lg font-semibold">You've been summoned</h2>
           <ul className="list-disc space-y-2 pl-5">
-            <li>Reuses an already-open tab when you open the same link again.</li>
-            <li>Flags duplicate and inactive tabs in the popup.</li>
-            <li>
-              In Supreme Court mode, auto-closes duplicates and puts inactive tabs to sleep. Turn it off with
-              the switch in the popup.
-            </li>
+            <li>Small Claims reuses an already-open tab and flags duplicate tabs.</li>
+            <li>Trial Court adds putting tabs you haven't used in a while to sleep automatically.</li>
+            <li>Supreme Court adds closing duplicate tabs and inactive tabs. Turn automatic cleanup off with the switch.</li>
           </ul>
         </section>
         <section className="mb-8">

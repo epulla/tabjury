@@ -372,12 +372,20 @@ export default function Form({
 
       <fieldset className="mt-6">
         <legend className="font-semibold text-[var(--accent)]">Automatic cleanup</legend>
-        {(settings.mode === 'ultra' || settings.mode === 'custom') && (
+        {settings.mode !== 'lite' && (
           <div className="mt-2">
             <Switch
               checked={settings.autoClean}
               onChange={(autoClean) => setSettings(withChange(settings, { autoClean }))}
-              label="Automatically close duplicate tabs and tidy up inactive tabs"
+              label={
+                settings.duplicates === 'auto'
+                  ? 'Automatically close duplicate tabs'
+                  : settings.inactive === 'discard'
+                    ? 'Automatically put inactive tabs to sleep'
+                    : settings.inactive === 'close'
+                      ? 'Automatically close inactive tabs'
+                      : 'Automatically clean up tabs'
+              }
             />
           </div>
         )}

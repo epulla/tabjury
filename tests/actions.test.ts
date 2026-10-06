@@ -30,6 +30,7 @@ beforeEach(async () => {
       grouped: false,
       recentMinutes: 0,
     },
+    autoClean: false,
   });
   await pausedUntil.setValue(0);
   await pendingActions.setValue([]);
