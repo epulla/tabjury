@@ -89,11 +89,12 @@ describe('classify', () => {
     [{ groupId: 4 }, true],
     [{ url: 'https://sub.example.com/x' }, true],
     [{ url: 'https://other.com/x' }, false],
+    [{ url: 'https://web.whatsapp.com/' }, true],
   ])('protects %o', (overrides, expected) =>
     expect(
       isProtected(
         tab(overrides),
-        { ...DEFAULTS, protect: { ...DEFAULTS.protect, domains: ['example.com'] } },
+        { ...DEFAULTS, protect: { ...DEFAULTS.protect, domains: ['example.com', 'https://web.whatsapp.com/'] } },
         100_000,
       ),
     ).toBe(expected),

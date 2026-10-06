@@ -1,6 +1,6 @@
 import type { Browser } from 'wxt/browser';
 import type { Settings } from './settings';
-import { normalizeUrl } from './url';
+import { normalizeUrl, onProtectedDomain } from './url';
 
 export type Tab = Browser.tabs.Tab & { lastAccessed?: number; frozen?: boolean };
 export type DupGroup = { key: string; keep: Tab; extras: Tab[] };
@@ -67,10 +67,7 @@ export function isProtected(tab: Tab, s: Settings, now: number): boolean {
     return true;
   if (tab.lastAccessed && now - tab.lastAccessed < s.protect.recentMinutes * 60_000) return true;
   try {
-    const hostname = new URL(tab.url ?? '').hostname.toLowerCase();
-    return s.protect.domains.some(
-      (domain) => hostname === domain.toLowerCase() || hostname.endsWith(`.${domain.toLowerCase()}`),
-    );
+    return onProtectedDomain(new URL(tab.url ?? '').hostname, s.protect.domains);
   } catch {
     return false;
   }

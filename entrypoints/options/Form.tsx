@@ -1,5 +1,6 @@
 import { applyPreset, PRESETS, withChange, type Mode, type Settings } from '@/src/core/settings';
 import { autoCleanLabel, modeDetails, MODES, SWATCHES } from '@/src/theme';
+import { toDomain } from '@/src/core/url';
 import Switch from '@/src/ui/Switch';
 import { useEffect, useState } from 'react';
 
@@ -351,22 +352,17 @@ export default function Form({
           />
         </label>
         <label className="mt-2 block">
-          Domains (one per line)
+          Websites to never close (one per line, e.g. mail.google.com)
           <textarea
             className="field mt-1 block w-full"
             rows={4}
             value={domainsDraft}
             onChange={(e) => setDomainsDraft(e.target.value)}
-            onBlur={() =>
-              setSettings(
-                withChange(settings, {
-                  protect: {
-                    ...settings.protect,
-                    domains: domainsDraft.split('\n').map((domain) => domain.trim()).filter(Boolean),
-                  },
-                }),
-              )
-            }
+            onBlur={() => {
+              const domains = [...new Set(domainsDraft.split('\n').map(toDomain).filter(Boolean))];
+              setDomainsDraft(domains.join('\n'));
+              setSettings(withChange(settings, { protect: { ...settings.protect, domains } }));
+            }}
           />
         </label>
       </fieldset>

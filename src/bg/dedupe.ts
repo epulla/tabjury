@@ -1,6 +1,6 @@
 import type { Tab } from '../core/classify';
 import { findAlibi } from '../core/alibi';
-import { isBlankUrl, normalizeUrl } from '../core/url';
+import { isBlankUrl, normalizeUrl, onProtectedDomain } from '../core/url';
 import { addToBin } from './bin';
 import { freshTabs, getSettings, lastDedupe, pausedUntil, recentlyDeduped } from './state';
 const fresh = new Map<number, string | undefined>();
@@ -36,8 +36,7 @@ async function handle(tab: Tab, url: string): Promise<void> {
     now = Date.now(),
     key = normalizeUrl(url, s.matching);
   if (!s.dedupeOnOpen || !key) return;
-  const host = new URL(key).hostname;
-  if (s.protect.domains.some((d) => host === d.toLowerCase() || host.endsWith(`.${d.toLowerCase()}`))) return;
+  if (onProtectedDomain(new URL(key).hostname, s.protect.domains)) return;
   const scope = s.mode === 'ultra' ? 'all' : s.dedupeScope;
   const tabs = await browser.tabs.query(scope === 'window' ? { windowId: tab.windowId } : {});
   const same = (t: Tab) =>
