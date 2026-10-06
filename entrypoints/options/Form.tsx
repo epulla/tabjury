@@ -25,7 +25,7 @@ export default function Form({
               className="rounded-lg border border-l-4 p-3 cursor-pointer"
               style={{
                 borderLeftColor: mode === 'custom' ? SWATCHES[settings.customColor] : MODES[mode].color,
-                background: `color-mix(in srgb, ${mode === 'custom' ? SWATCHES[settings.customColor] : MODES[mode].color} 8%, white)`,
+                background: `color-mix(in srgb, ${mode === 'custom' ? SWATCHES[settings.customColor] : MODES[mode].color} 8%, #fffaf0)`,
                 ...(settings.mode === mode && {
                   boxShadow: `0 0 0 2px ${mode === 'custom' ? SWATCHES[settings.customColor] : MODES[mode].color}`,
                 }),

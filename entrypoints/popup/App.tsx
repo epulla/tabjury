@@ -44,15 +44,14 @@ export default function App() {
         <History entries={history} onBack={() => setShowHistory(false)} onClear={() => setHistory([])} />
       ) : (
         <>
-          <header className={`relative border-b border-[color-mix(in_srgb,var(--accent)_25%,transparent)] bg-[color-mix(in_srgb,var(--accent)_14%,transparent)] px-4 pb-3 pt-4 ${settings.mode === 'ultra' ? 'shimmer' : ''}`}>
-            <Courtroom />
+          <header className={`bench px-4 pb-3 pt-4 ${settings.mode === 'ultra' ? 'shimmer' : ''}`}>
             <div className="relative z-10">
               <div className="flex items-center justify-between">
                 <strong className="text-base"><span aria-hidden="true">⚖️</span>{' '}TabJury</strong>
                 <span className="flex items-center gap-1">
                   <span
                     key={settings.mode}
-                    className="mode-badge rounded-full bg-[color-mix(in_srgb,var(--accent)_15%,white)] px-2.5 py-1 text-sm font-semibold text-[var(--accent)]"
+                    className="mode-badge text-sm"
                   >
                     <span className="mode-badge-emoji" aria-hidden="true">{MODES[settings.mode].emoji}</span>
                     <span className="mode-badge-text">{MODES[settings.mode].name}</span>
@@ -69,8 +68,8 @@ export default function App() {
                   </button>
                 </span>
               </div>
-              <p className="text-xs text-gray-600">{MODES[settings.mode].blurb}</p>
-              <div className="seg mt-2 flex w-full" role="group" aria-label="Mode">
+              <p className="mt-1 text-xs opacity-80">{MODES[settings.mode].blurb}</p>
+              <div className="seg mt-2.5 flex w-full" role="group" aria-label="Mode">
                 <span
                   className="seg-pill"
                   aria-hidden="true"
@@ -99,7 +98,7 @@ export default function App() {
                 ))}
               </div>
               {showInfo && (
-                <div id="mode-info" className="mt-2 space-y-2 rounded-lg border bg-white/80 p-2 text-xs">
+                <div id="mode-info" className="mt-2 space-y-2 rounded-lg border border-[#d9b45a]/60 bg-[#f8f0e1] p-2 text-xs text-[#2b1d14]">
                   {(['lite', 'normal', 'ultra', 'custom'] as Mode[]).map((mode) => (
                     <div
                       key={mode}
@@ -168,7 +167,7 @@ export default function App() {
                       </button>
                     </form>
                   ) : (
-                    <div className="flex items-center gap-1 text-xs text-gray-600">
+                    <div className="flex items-center gap-1 text-xs opacity-80">
                       <span>Closes tabs idle for {formatMinutes(settings.closeMinutes)}</span>
                       <button
                         type="button"
@@ -184,12 +183,12 @@ export default function App() {
                     </div>
                   )}
                   {settings.protect.grouped && (
-                    <p className="mt-1 text-xs text-gray-500">Tabs in groups, pinned, or playing audio are kept.</p>
+                    <p className="mt-1 text-xs opacity-70">Tabs in groups, pinned, or playing audio are kept.</p>
                   )}
                 </div>
               )}
               {autoOn(settings) && pending.length > 0 && (
-                <p className="mt-2 rounded-lg bg-[color-mix(in_srgb,var(--accent)_8%,transparent)] p-2 text-xs">
+                <p className="mt-2 rounded-lg bg-black/25 p-2 text-xs">
                   {`${pending.length} tabs will be tidied up ${
                     settings.auto.graceSeconds <= 60
                       ? 'in about a minute'
@@ -198,9 +197,9 @@ export default function App() {
                 </p>
               )}
             </div>
-            <div className="bench" />
           </header>
-          <div className="px-4 pb-4">
+          <div className="relative isolate px-4 pb-4">
+            <Courtroom />
             <div className="mt-3 flex items-center justify-between">
               {paused > now ? (
                 <>

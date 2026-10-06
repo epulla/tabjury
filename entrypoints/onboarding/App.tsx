@@ -10,9 +10,9 @@ export default function App() {
   const modes: Array<Exclude<Mode, 'custom'>> = ['lite', 'normal', 'ultra'];
 
   return (
-    <div className="app-bg relative min-h-screen" style={{ '--accent': accentFor(settings) } as CSSProperties}>
+    <div className="app-bg relative isolate min-h-screen" style={{ '--accent': accentFor(settings) } as CSSProperties}>
       <Courtroom />
-      <main className="relative mx-auto max-w-xl p-8 text-sm text-gray-900">
+      <main className="mx-auto max-w-xl p-8 text-sm">
         <h1 className="mb-8 text-2xl font-semibold">
           Welcome to <span style={{ color: 'var(--accent)' }}>TabJury</span>
         </h1>
@@ -34,7 +34,7 @@ export default function App() {
                 className="flex cursor-pointer gap-3 rounded-lg border border-l-4 p-3"
                 style={{
                   borderLeftColor: MODES[id].color,
-                  background: `color-mix(in srgb, ${MODES[id].color} 8%, white)`,
+                  background: `color-mix(in srgb, ${MODES[id].color} 8%, #fffaf0)`,
                   ...(settings.mode === id && { boxShadow: `0 0 0 2px ${MODES[id].color}` }),
                 }}
               >
