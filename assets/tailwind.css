@@ -44,7 +44,7 @@
 @media (prefers-reduced-motion: no-preference) {
   .btn { transition: background 150ms, border-color 150ms, color 150ms; }
   .app-bg { transition: --accent 250ms; }
-  .seg-pill { transition: left 300ms cubic-bezier(.34,1.56,.64,1), background 250ms; }
+  .seg-pill[data-animate] { transition: left 300ms cubic-bezier(.34,1.56,.64,1), background 250ms; }
   .mode-badge-emoji { display: inline-block; animation: gavel 350ms cubic-bezier(.34,1.56,.64,1); }
   .mode-badge-text { animation: badge-pop 300ms ease-out; }
   .shimmer::after { position: absolute; inset: 0; background: linear-gradient(110deg, transparent 35%, rgb(255 236 200 / .14), transparent 65%); content: ''; animation: shimmer 5s infinite; pointer-events: none; }
