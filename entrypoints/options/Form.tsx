@@ -1,6 +1,7 @@
 import { applyPreset, PRESETS, withChange, type Mode, type Settings } from '@/src/core/settings';
 import { modeDetails, MODES, SWATCHES } from '@/src/theme';
 import Switch from '@/src/ui/Switch';
+import { useEffect, useState } from 'react';
 
 export default function Form({
   settings,
@@ -9,6 +10,10 @@ export default function Form({
   settings: Settings;
   setSettings: (value: Settings) => Promise<void>;
 }) {
+  const domainsKey = settings.protect.domains.join('\n');
+  const [domainsDraft, setDomainsDraft] = useState(domainsKey);
+  useEffect(() => setDomainsDraft(domainsKey), [domainsKey]);
+
   return (
     <form>
       <fieldset className="mt-6">
@@ -349,16 +354,14 @@ export default function Form({
           <textarea
             className="field mt-1 block w-full"
             rows={4}
-            value={settings.protect.domains.join('\n')}
-            onChange={(e) =>
+            value={domainsDraft}
+            onChange={(e) => setDomainsDraft(e.target.value)}
+            onBlur={() =>
               setSettings(
                 withChange(settings, {
                   protect: {
                     ...settings.protect,
-                    domains: e.target.value
-                      .split('\n')
-                      .map((domain) => domain.trim())
-                      .filter(Boolean),
+                    domains: domainsDraft.split('\n').map((domain) => domain.trim()).filter(Boolean),
                   },
                 }),
               )
