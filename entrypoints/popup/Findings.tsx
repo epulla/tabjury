@@ -47,10 +47,10 @@ export default function FindingsView({ findings, settings, onRefresh }: Props) {
       {dups.length > 0 && (
         <section className="mt-3">
           <header className="flex items-center justify-between">
-            <h2 className="font-semibold text-[var(--accent)]"><span aria-hidden="true">👥</span>{' '}Duplicates ({duplicateTabs.length})</h2>
+            <h2 className="font-semibold text-[var(--accent)]">Duplicates ({duplicateTabs.length})</h2>
             <span className="flex gap-2">
               <button type="button" className="btn" onClick={() => close(duplicateTabs, 'duplicate')}>
-                <span aria-hidden="true">🔨</span>{' '}Close all extras
+                Close all extras
               </button>
             </span>
           </header>
@@ -85,7 +85,7 @@ export default function FindingsView({ findings, settings, onRefresh }: Props) {
       {inactive.length > 0 && (
         <section className="mt-3">
           <header className="flex items-center justify-between">
-            <h2 className="font-semibold text-[var(--accent)]"><span aria-hidden="true">💤</span>{' '}Inactive ({inactive.length})</h2>
+            <h2 className="font-semibold text-[var(--accent)]">Inactive ({inactive.length})</h2>
             <span className="flex gap-2">
               <button
                 type="button"
@@ -97,7 +97,7 @@ export default function FindingsView({ findings, settings, onRefresh }: Props) {
                 Discard all
               </button>
               <button type="button" className="btn" onClick={() => close(inactiveTabs, 'inactive')}>
-                <span aria-hidden="true">🔨</span>{' '}Close all
+                Close all
               </button>
             </span>
           </header>
@@ -133,7 +133,7 @@ export default function FindingsView({ findings, settings, onRefresh }: Props) {
         </section>
       )}
       {!dups.length && !inactive.length && (
-        <p className="py-8 text-center text-gray-500"><span aria-hidden="true">✅</span>{' '}{COPY.docketClear}</p>
+        <p className="py-8 text-center text-gray-500">{COPY.docketClear}</p>
       )}
       {selectedTabs.length > 0 && (
         <button
@@ -151,7 +151,7 @@ export default function FindingsView({ findings, settings, onRefresh }: Props) {
             ])
           }
         >
-          <span aria-hidden="true">🔨</span>{' '}Close selected ({selectedTabs.length})
+          Close selected ({selectedTabs.length})
         </button>
       )}
     </>

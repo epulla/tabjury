@@ -12,7 +12,7 @@ export default defineConfig({
     commands: {
       'pause-toggle': {
         suggested_key: { default: 'Alt+Shift+P' },
-        description: 'Pause/resume TabJury',
+        description: 'Start or end a recess (TabJury)',
       },
     },
   },

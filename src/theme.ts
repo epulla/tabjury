@@ -1,22 +1,30 @@
 import type { Mode, Settings } from './core/settings';
 
-export const MODES: Record<Mode, { name: string; blurb: string; color: string }> = {
+export const MODES: Record<Mode, { name: string; blurb: string; color: string; emoji: string }> = {
   lite: {
-    name: 'Small Claims',
+    name: 'Claims Court',
     blurb: 'Reuses an open tab instead of opening the same link twice, and flags duplicate tabs.',
     color: '#06b6d4',
+    emoji: '📝',
   },
   normal: {
     name: 'Trial Court',
     blurb: "Everything in Claims Court, plus puts tabs you haven't used in a while to sleep. Nothing is closed.",
     color: '#16a34a',
+    emoji: '🧑‍⚖️',
   },
   ultra: {
     name: 'Supreme Court',
     blurb: 'Reuses open tabs, auto-closes duplicates, and closes tabs left idle too long.',
     color: '#7c3aed',
+    emoji: '🏛️',
   },
-  custom: { name: 'Your Court', blurb: 'Your own mix of rules, set in Settings.', color: '#6b7280' },
+  custom: {
+    name: 'Your Court',
+    blurb: 'Your own mix of rules, set in Settings.',
+    color: '#6b7280',
+    emoji: '🛠️',
+  },
 };
 
 export const modeDetails = (s: Pick<Settings, 'dedupeOnOpen' | 'duplicates' | 'inactive'>) => [
@@ -24,6 +32,15 @@ export const modeDetails = (s: Pick<Settings, 'dedupeOnOpen' | 'duplicates' | 'i
   `Duplicates: ${{ off: 'ignored', detect: 'flagged', auto: 'auto-closed' }[s.duplicates]}`,
   `Inactive tabs: ${{ off: 'ignored', detect: 'flagged', discard: 'put to sleep', close: 'closed' }[s.inactive]}`,
 ];
+
+export const autoCleanLabel = (s: Pick<Settings, 'duplicates' | 'inactive'>) => {
+  const actions = [
+    s.duplicates === 'auto' && 'close duplicate tabs',
+    s.inactive === 'discard' && 'put inactive tabs to sleep',
+    s.inactive === 'close' && 'close inactive tabs',
+  ].filter(Boolean);
+  return actions.length ? `Automatically ${actions.join(' and ')}` : 'Automatically clean up tabs';
+};
 
 export const SWATCHES: Record<string, string> = {
   gray: '#6b7280',

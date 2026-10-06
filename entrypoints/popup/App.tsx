@@ -10,7 +10,8 @@ import { findingsItem, scan } from '@/src/bg/scanner';
 import { autoOn } from '@/src/bg/actions';
 import { binItem } from '@/src/bg/bin';
 import { applyPreset, PRESETS, withChange, type Mode } from '@/src/core/settings';
-import { accentFor, COPY, modeDetails, MODES } from '@/src/theme';
+import { accentFor, autoCleanLabel, COPY, modeDetails, MODES } from '@/src/theme';
+import Courtroom from '@/src/ui/Courtroom';
 import Switch from '@/src/ui/Switch';
 import { useItem } from '@/src/ui/useItem';
 import { formatMinutes } from '@/src/ui/time';
@@ -43,147 +44,151 @@ export default function App() {
         <History entries={history} onBack={() => setShowHistory(false)} onClear={() => setHistory([])} />
       ) : (
         <>
-          <header className="border-b border-[color-mix(in_srgb,var(--accent)_25%,transparent)] bg-[color-mix(in_srgb,var(--accent)_14%,transparent)] px-4 pb-3 pt-4">
-            <div className="flex items-baseline justify-between">
-              <strong className="text-base"><span aria-hidden="true">⚖️</span>{' '}TabJury</strong>
-              <span className="flex items-center gap-1 text-xs font-medium text-[var(--accent)]">
-                {MODES[settings.mode].name}
-                <button
-                  type="button"
-                  className="btn btn-ghost px-1.5 py-0"
-                  aria-label="What do modes do?"
-                  aria-expanded={showInfo}
-                  aria-controls="mode-info"
-                  onClick={() => setShowInfo(!showInfo)}
-                >
-                  ⓘ
-                </button>
-              </span>
-            </div>
-            <p className="text-xs text-gray-600">{MODES[settings.mode].blurb}</p>
-            <div className="seg mt-2" role="group" aria-label="Mode">
-              {(['lite', 'normal', 'ultra', 'custom'] as Mode[]).map((mode) => (
-                <button
-                  type="button"
-                  className="seg-item"
-                  aria-pressed={settings.mode === mode}
-                  key={mode}
-                  title={`${MODES[mode].name}: ${MODES[mode].blurb}`}
-                  style={
-                    {
-                      '--seg-color': mode === 'custom' ? accentFor(settings) : MODES[mode].color,
-                    } as CSSProperties
-                  }
-                  onClick={() => {
-                    if (settings.mode === mode) return;
-                    setSettings(
-                      mode === 'custom' ? { ...settings, mode, autoClean: false } : applyPreset(settings, mode),
-                    );
-                  }}
-                >
-                  {mode.charAt(0).toUpperCase() + mode.slice(1)}
-                </button>
-              ))}
-            </div>
-            {showInfo && (
-              <div id="mode-info" className="mt-2 space-y-2 rounded-lg border bg-white/80 p-2 text-xs">
-                {(['lite', 'normal', 'ultra', 'custom'] as Mode[]).map((mode) => (
-                  <div
-                    key={mode}
-                    className={
-                      settings.mode === mode
-                        ? 'rounded-md bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] p-1'
-                        : 'p-1'
-                    }
+          <header className={`relative border-b border-[color-mix(in_srgb,var(--accent)_25%,transparent)] bg-[color-mix(in_srgb,var(--accent)_14%,transparent)] px-4 pb-3 pt-4 ${settings.mode === 'ultra' ? 'shimmer' : ''}`}>
+            <Courtroom />
+            <div className="relative z-10">
+              <div className="flex items-center justify-between">
+                <strong className="text-base"><span aria-hidden="true">⚖️</span>{' '}TabJury</strong>
+                <span className="flex items-center gap-1">
+                  <span
+                    key={settings.mode}
+                    className="mode-badge rounded-full bg-[color-mix(in_srgb,var(--accent)_15%,white)] px-2.5 py-1 text-sm font-semibold text-[var(--accent)]"
                   >
-                    <div className="flex items-center gap-1">
-                      <span
-                        className="h-2 w-2 rounded-full"
-                        style={{ background: mode === 'custom' ? accentFor(settings) : MODES[mode].color }}
-                      />
-                      <strong>
-                        {MODES[mode].name} ({mode.charAt(0).toUpperCase() + mode.slice(1)})
-                      </strong>
-                    </div>
-                    <div className="text-gray-600">{MODES[mode].blurb}</div>
-                    <ul className="list-disc pl-4 text-gray-500">
-                      {modeDetails(mode === 'custom' ? settings : PRESETS[mode]).map((detail) => (
-                        <li key={detail}>{detail}</li>
-                      ))}
-                      {mode === 'custom' && <li>Adjust rules in Settings</li>}
-                    </ul>
-                  </div>
-                ))}
+                    <span className="mode-badge-emoji" aria-hidden="true">{MODES[settings.mode].emoji}</span>
+                    <span className="mode-badge-text">{MODES[settings.mode].name}</span>
+                  </span>
+                  <button
+                    type="button"
+                    className="btn btn-ghost px-1.5 py-0"
+                    aria-label="What do modes do?"
+                    aria-expanded={showInfo}
+                    aria-controls="mode-info"
+                    onClick={() => setShowInfo(!showInfo)}
+                  >
+                    ⓘ
+                  </button>
+                </span>
               </div>
-            )}
-            {settings.mode !== 'lite' && (
-              <div className="mt-3">
-                <Switch
-                  checked={settings.autoClean}
-                  onChange={(autoClean) => setSettings(withChange(settings, { autoClean }))}
-                  label={
-                    settings.duplicates === 'auto'
-                      ? 'Automatically close duplicate tabs'
-                      : settings.inactive === 'discard'
-                        ? 'Automatically put inactive tabs to sleep'
-                        : settings.inactive === 'close'
-                          ? 'Automatically close inactive tabs'
-                          : 'Automatically clean up tabs'
-                  }
+              <p className="text-xs text-gray-600">{MODES[settings.mode].blurb}</p>
+              <div className="seg mt-2 flex w-full" role="group" aria-label="Mode">
+                <span
+                  className="seg-pill"
+                  aria-hidden="true"
+                  style={{
+                    '--seg-i': ['lite', 'normal', 'ultra', 'custom'].indexOf(settings.mode),
+                    '--seg-n': 4,
+                    '--seg-color': settings.mode === 'custom' ? accentFor(settings) : MODES[settings.mode].color,
+                  } as CSSProperties}
                 />
-              </div>
-            )}
-            {settings.inactive === 'close' && (
-              <div className="mt-2">
-                {editingClose ? (
-                  <form
-                    className="flex items-center gap-1"
-                    onSubmit={(event) => {
-                      event.preventDefault();
-                      const n = Number(closeMinutes);
-                      if (!Number.isFinite(n)) return;
-                      setSettings(withChange(settings, { closeMinutes: Math.max(5, n) }));
-                      setEditingClose(false);
+                {(['lite', 'normal', 'ultra', 'custom'] as Mode[]).map((mode) => (
+                  <button
+                    type="button"
+                    className="seg-item"
+                    aria-pressed={settings.mode === mode}
+                    key={mode}
+                    title={`${MODES[mode].name}: ${MODES[mode].blurb}`}
+                    onClick={() => {
+                      if (settings.mode === mode) return;
+                      setSettings(
+                        mode === 'custom' ? { ...settings, mode, autoClean: false } : applyPreset(settings, mode),
+                      );
                     }}
                   >
-                    <input
-                      type="number"
-                      min={5}
-                      className="field w-20"
-                      aria-label="Minutes idle before closing"
-                      value={closeMinutes}
-                      onChange={(event) => setCloseMinutes(event.target.value)}
-                    />
-                    <span>min</span>
-                    <button type="submit" className="btn btn-primary">
-                      Save
-                    </button>
-                    <button type="button" className="btn btn-ghost" onClick={() => setEditingClose(false)}>
-                      Cancel
-                    </button>
-                  </form>
-                ) : (
-                  <div className="flex items-center gap-1 text-xs text-gray-600">
-                    <span>Closes tabs idle for {formatMinutes(settings.closeMinutes)}</span>
-                    <button
-                      type="button"
-                      className="btn btn-ghost"
-                      aria-label="Change idle time"
-                      onClick={() => {
-                        setCloseMinutes(String(settings.closeMinutes));
-                        setEditingClose(true);
+                    {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                  </button>
+                ))}
+              </div>
+              {showInfo && (
+                <div id="mode-info" className="mt-2 space-y-2 rounded-lg border bg-white/80 p-2 text-xs">
+                  {(['lite', 'normal', 'ultra', 'custom'] as Mode[]).map((mode) => (
+                    <div
+                      key={mode}
+                      className={
+                        settings.mode === mode
+                          ? 'rounded-md bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] p-1'
+                          : 'p-1'
+                      }
+                    >
+                      <div className="flex items-center gap-1">
+                        <span
+                          className="h-2 w-2 rounded-full"
+                          style={{ background: mode === 'custom' ? accentFor(settings) : MODES[mode].color }}
+                        />
+                        <strong>
+                          {MODES[mode].name} ({mode.charAt(0).toUpperCase() + mode.slice(1)})
+                        </strong>
+                      </div>
+                      <div className="text-gray-600">{MODES[mode].blurb}</div>
+                      <ul className="list-disc pl-4 text-gray-500">
+                        {modeDetails(mode === 'custom' ? settings : PRESETS[mode]).map((detail) => (
+                          <li key={detail}>{detail}</li>
+                        ))}
+                        {mode === 'custom' && <li>Adjust rules in Settings</li>}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {settings.mode !== 'lite' && (
+                <div className="mt-3">
+                  <Switch
+                    checked={settings.autoClean}
+                    onChange={(autoClean) => setSettings(withChange(settings, { autoClean }))}
+                    label={autoCleanLabel(settings)}
+                  />
+                </div>
+              )}
+              {settings.inactive === 'close' && (
+                <div className="mt-2">
+                  {editingClose ? (
+                    <form
+                      className="flex items-center gap-1"
+                      onSubmit={(event) => {
+                        event.preventDefault();
+                        const n = Number(closeMinutes);
+                        if (!Number.isFinite(n)) return;
+                        setSettings(withChange(settings, { closeMinutes: Math.max(5, n) }));
+                        setEditingClose(false);
                       }}
                     >
-                      ✎
-                    </button>
-                  </div>
-                )}
-                {settings.protect.grouped && (
-                  <p className="mt-1 text-xs text-gray-500">Tabs in groups, pinned, or playing audio are kept.</p>
-                )}
-              </div>
-            )}
-            {autoOn(settings) && pending.length > 0 && (
+                      <input
+                        type="number"
+                        min={5}
+                        className="field w-20"
+                        aria-label="Minutes idle before closing"
+                        value={closeMinutes}
+                        onChange={(event) => setCloseMinutes(event.target.value)}
+                      />
+                      <span>min</span>
+                      <button type="submit" className="btn btn-primary">
+                        Save
+                      </button>
+                      <button type="button" className="btn btn-ghost" onClick={() => setEditingClose(false)}>
+                        Cancel
+                      </button>
+                    </form>
+                  ) : (
+                    <div className="flex items-center gap-1 text-xs text-gray-600">
+                      <span>Closes tabs idle for {formatMinutes(settings.closeMinutes)}</span>
+                      <button
+                        type="button"
+                        className="btn btn-ghost"
+                        aria-label="Change idle time"
+                        onClick={() => {
+                          setCloseMinutes(String(settings.closeMinutes));
+                          setEditingClose(true);
+                        }}
+                      >
+                        ✎
+                      </button>
+                    </div>
+                  )}
+                  {settings.protect.grouped && (
+                    <p className="mt-1 text-xs text-gray-500">Tabs in groups, pinned, or playing audio are kept.</p>
+                  )}
+                </div>
+              )}
+              {autoOn(settings) && pending.length > 0 && (
                 <p className="mt-2 rounded-lg bg-[color-mix(in_srgb,var(--accent)_8%,transparent)] p-2 text-xs">
                   {`${pending.length} tabs will be tidied up ${
                     settings.auto.graceSeconds <= 60
@@ -191,7 +196,9 @@ export default function App() {
                       : `in about ${Math.ceil(settings.auto.graceSeconds / 60)} minutes`
                   }`}
                 </p>
-            )}
+              )}
+            </div>
+            <div className="bench" />
           </header>
           <div className="px-4 pb-4">
             <div className="mt-3 flex items-center justify-between">
@@ -208,11 +215,11 @@ export default function App() {
                 <>
                   <span className="flex items-center gap-2">
                     <span className="h-2 w-2 rounded-full" style={{ background: 'var(--accent)' }} />
-                    Running
+                    In session
                   </span>
                   <span className="flex items-center gap-1">
                     <button type="button" className="btn btn-ghost" onClick={() => setShowPause(!showPause)}>
-                      Pause
+                      Recess
                     </button>
                     {showPause &&
                       [5, 15, 60].map((value) => (
@@ -253,7 +260,7 @@ export default function App() {
             {settings.duplicates !== 'off' || settings.inactive !== 'off' ? (
               <Findings findings={findings} settings={settings} onRefresh={refresh} />
             ) : (
-              <p className="py-8 text-center text-gray-500"><span aria-hidden="true">✅</span>{' '}{COPY.docketClear}</p>
+              <p className="py-8 text-center text-gray-500">{COPY.docketClear}</p>
             )}
             <footer className="mt-3 flex justify-between border-t border-[color-mix(in_srgb,var(--accent)_20%,transparent)] pt-3">
               <button
