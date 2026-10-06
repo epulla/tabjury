@@ -19,7 +19,9 @@ export async function schedule(findings: Findings, s: Settings): Promise<void> {
     return;
   }
   await pendingActions.setValue(actions);
-  await browser.alarms.create('grace', { when: Date.now() + s.auto.graceSeconds * 1000 });
+  // Scans run every 30s; resetting the alarm each time would keep it from ever firing.
+  if (!(await browser.alarms.get('grace')))
+    await browser.alarms.create('grace', { when: Date.now() + s.auto.graceSeconds * 1000 });
 }
 
 export async function execute(): Promise<void> {

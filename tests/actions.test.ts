@@ -4,6 +4,9 @@ import { execute, schedule } from '../src/bg/actions';
 import { scan } from '../src/bg/scanner';
 import { historyItem, pausedUntil, pendingActions, settingsItem } from '../src/bg/state';
 import { binItem } from '../src/bg/bin';
+import type { Tab } from '../src/core/classify';
+
+const { create } = fakeBrowser.alarms;
 
 beforeEach(async () => {
   fakeBrowser.reset();
@@ -53,6 +56,25 @@ describe('actions', () => {
     await schedule(findings, await settingsItem.getValue());
     expect(await pendingActions.getValue()).toHaveLength(1);
     expect(fakeBrowser.alarms.create).toHaveBeenCalledWith('grace', expect.anything());
+  });
+  it('rescans keep the pending grace alarm', async () => {
+    fakeBrowser.alarms.create = create;
+    vi.useFakeTimers({ toFake: ['Date'] });
+    try {
+      const s = { ...(await settingsItem.getValue()), mode: 'ultra' as const, inactive: 'close' as const, closeMinutes: 5, autoClean: true };
+      const findings = {
+        at: 0,
+        dups: [],
+        inactive: [{ tab: { id: 7, url: 'https://a.com' } as Tab, native: false, stale: true, idleMs: 10 * 60_000 }],
+      };
+      const due = Date.now() + s.auto.graceSeconds * 1000;
+      await schedule(findings, s);
+      vi.setSystemTime(Date.now() + 30_000);
+      await schedule(findings, s);
+      expect((await fakeBrowser.alarms.get('grace'))?.scheduledTime).toBe(due);
+    } finally {
+      vi.useRealTimers();
+    }
   });
   it('auto-clean off clears pending actions', async () => {
     await pendingActions.setValue([{ kind: 'close', tabId: 1, reason: 'duplicate' }]);
