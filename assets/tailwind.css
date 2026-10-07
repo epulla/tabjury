@@ -1,10 +1,10 @@
 @import "tailwindcss";
 
-:root { --accent: #16a34a; }
+:root { --accent: #2563eb; }
 
 @theme { --color-gray-100: #f1e6d2; --color-gray-300: #d8c8ad; --color-gray-500: #7a6450; --color-gray-600: #5c4a3a; }
 
-@property --accent { syntax: '<color>'; inherits: true; initial-value: #16a34a; }
+@property --accent { syntax: '<color>'; inherits: true; initial-value: #2563eb; }
 
 @layer components {
   .btn { display: inline-flex; align-items: center; gap: .375rem; border: 1px solid color-mix(in srgb, var(--accent) 35%, #d8c8ad); border-radius: 9999px; background: white; padding: .25rem .75rem; font-size: .75rem; font-weight: 500; color: #2b1d14; cursor: pointer; }
