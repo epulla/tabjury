@@ -10,7 +10,7 @@ export const MODES: Record<Mode, { name: string; blurb: string; color: string; e
   normal: {
     name: 'Trial Court',
     blurb: "Everything in Claims Court, plus puts tabs you haven't used in a while to sleep. Nothing is closed.",
-    color: '#16a34a',
+    color: '#2563eb',
     emoji: '🧑‍⚖️',
   },
   ultra: {

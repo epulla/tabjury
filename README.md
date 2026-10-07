@@ -2,6 +2,10 @@
 
 **Your tabs. Your rules. The jury decides.**
 
+<p align="center">
+  <img src="public/mascot.png" alt="TabJury mascot holding a gavel and a book of rules" width="320">
+</p>
+
 Meet TabJury, the jury for your browser tabs. Each tab gets a fair hearing: still in use,
 repeated, or left unused? You choose the court and set the rules. The jury decides what
 stays open, what goes to sleep, and what closes.
