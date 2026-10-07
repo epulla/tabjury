@@ -44,6 +44,8 @@ Before finishing a change, run `pnpm compile && pnpm test`. The repo has no lint
 - `src/theme.ts`: mode names, colors, and user-facing mode descriptions.
 - `src/ui/`: shared React hooks and components (`useItem`, `Switch`).
 - `tests/`: Vitest with `wxt/testing/fake-browser`.
+- `public/`: copied as-is into the extension. Keep large source art in `assets/` (unbundled unless imported) or `docs/` (README images).
+- `PRIVACY.md`: privacy policy linked from the store listing. Update it when you add a permission, a storage item, or any network call.
 - `.agents/skills/`: installed agent skills, pinned in `skills-lock.json`; `.claude/skills/` symlinks to them.
 
 ## Domain rules
