@@ -180,6 +180,10 @@ pnpm compile && pnpm test
 
 Builds and ZIP packages are written to `.output/`.
 
+## Privacy
+
+TabJury collects no data; everything stays in your browser. See [PRIVACY.md](PRIVACY.md).
+
 ## License
 
 [MIT](LICENSE)
