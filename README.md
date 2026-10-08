@@ -1,14 +1,26 @@
-# ⚖️ TabJury
+<p align="center">
+  <img src="docs/icon-rounded.png" width="128" alt="TabJury icon">
+</p>
 
-**Your tabs. Your rules. The jury decides.**
+<h1 align="center">TabJury</h1>
 
 <p align="center">
-  <img src="docs/mascot.png" alt="TabJury mascot holding a gavel and a book of rules" width="320">
+  <b>Your tabs. Your rules. The jury decides.</b><br>
+  <a href="https://github.com/epulla/tabjury/actions/workflows/build.yml"><img src="https://github.com/epulla/tabjury/actions/workflows/build.yml/badge.svg" alt="Build"></a>
 </p>
 
 Meet TabJury, the jury for your browser tabs. Each tab gets a fair hearing: still in use,
 repeated, or left unused? You choose the court and set the rules. The jury decides what
 stays open, what goes to sleep, and what closes.
+
+<p align="center">
+  <a href="https://chromewebstore.google.com/detail/tabjury/mbpkdfnnnncfbbdhadhofjdikngjlehk"><img src="https://img.shields.io/chrome-web-store/v/mbpkdfnnnncfbbdhadhofjdikngjlehk?style=for-the-badge&logo=googlechrome&logoColor=white&label=Download%20for%20Chrome&color=2ea44f" height="48" alt="Download TabJury for Chrome"></a><br>
+  <sub>Chrome 121 or later · Firefox: <a href="#firefox">build locally</a> · <a href="#install">install steps</a> · <a href="https://github.com/epulla/tabjury/releases">all releases</a></sub>
+</p>
+
+<p align="center">
+  <img src="docs/mascot.png" alt="TabJury mascot holding a gavel and a book of rules" width="320">
+</p>
 
 ## What TabJury does
 
@@ -24,11 +36,13 @@ Putting a tab to sleep unloads its page while leaving the tab open; selecting it
 the page again. Closing removes the tab. Your chosen court determines which actions
 TabJury takes.
 
-## Try it locally
+## Install
 
-**TabJury is not published in browser stores yet. It is being prepared for release.**
-For now, build and load it locally for testing. You'll need Git, Node.js, and pnpm
-(the version used by this project is pinned in `package.json`).
+Install [TabJury from the Chrome Web Store](https://chromewebstore.google.com/detail/tabjury/mbpkdfnnnncfbbdhadhofjdikngjlehk), then open TabJury from the extensions menu and choose a court.
+
+### Build from source
+
+To build from source, you'll need Git, Node.js, and pnpm (the version used by this project is pinned in `package.json`).
 
 ```sh
 git clone https://github.com/epulla/tabjury.git
@@ -37,6 +51,8 @@ pnpm i
 ```
 
 ### Chrome
+
+For testing, load the build as an unpacked extension:
 
 1. Run `pnpm build`.
 2. Open `chrome://extensions` and enable **Developer mode**.
