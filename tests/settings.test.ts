@@ -36,6 +36,15 @@ describe('settings', () => {
     expect(result).toEqual(DEFAULTS);
     expect(result).not.toHaveProperty('extra');
   });
+  it('keeps mode and other leftover options when leftovers change', () => {
+    const ultra = { ...applyPreset(DEFAULTS, 'ultra'), leftovers: { level: 'close' as const, seconds: 44, extra: ['x'] } };
+    expect(withChange(ultra, { leftovers: { level: 'detect' } as never })).toMatchObject({ mode: 'ultra', leftovers: { level: 'detect', seconds: 44, extra: ['x'] } });
+  });
+  it('preset changes leftover level only', () => {
+    const value = { ...DEFAULTS, leftovers: { level: 'off' as const, seconds: 77, extra: ['x'] } };
+    expect(applyPreset(value, 'ultra').leftovers).toEqual({ level: 'close', seconds: 77, extra: ['x'] });
+  });
+  it('migrates old settings shape', () => expect(migrate({ mode: 'normal' }).leftovers).toEqual(DEFAULTS.leftovers));
   it('updates stored ultra rules without changing auto-clean', () => {
     const result = migrate({ ...DEFAULTS, mode: 'ultra', inactive: 'discard', autoClean: false });
     expect(result).toMatchObject({ mode: 'ultra', inactive: 'close', autoClean: false });
