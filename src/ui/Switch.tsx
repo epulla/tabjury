@@ -16,7 +16,7 @@ export default function Switch({
       onClick={() => onChange(!checked)}
     >
       <span
-        className={`flex h-5 w-9 items-center rounded-full p-0.5 ${checked ? 'shadow-[0_0_0_3px_color-mix(in_srgb,var(--accent)_25%,transparent)]' : ''} motion-safe:transition-[background-color,box-shadow] ${
+        className={`flex h-5 w-9 shrink-0 items-center rounded-full p-0.5 ${checked ? 'shadow-[0_0_0_3px_color-mix(in_srgb,var(--accent)_25%,transparent)]' : ''} motion-safe:transition-[background-color,box-shadow] ${
           checked ? 'bg-[var(--accent)]' : 'bg-gray-300'
         }`}
       >
