@@ -35,7 +35,7 @@ https://github.com/babraham123/app-tab-cleaner)."
       `applyPreset`, `withChange`, `migrate`. Check: `pnpm test tests/leftovers.test.ts tests/settings.test.ts`
       (Zoom `#success` yes, Zoom without `#success` no, `/wc/` no, glob extra yes, old stored shape migrates,
       changing leftovers keeps the mode).
-- [ ] Background: `decide` gets reason `'leftover'` (protection bypass as decided, batch cap);
+- [x] Background: `decide` gets reason `'leftover'` (protection bypass as decided, batch cap);
       scanner reports leftovers in findings and badge; `autoOn` includes
       leftovers; leftover actions run without grace; last tab in window gets a new tab first;
       Recently closed and History accept the new reason. Check: `pnpm test tests/policy.test.ts tests/actions.test.ts tests/scanner.test.ts`.

@@ -9,7 +9,7 @@ export type BinEntry = {
   title: string;
   favIconUrl?: string;
   closedAt: number;
-  reason: 'dedupe' | 'duplicate' | 'inactive' | 'manual';
+  reason: 'dedupe' | 'duplicate' | 'inactive' | 'leftover' | 'manual';
   windowId: number;
   index: number;
   sessionId?: string;
