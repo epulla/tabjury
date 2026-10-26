@@ -15,7 +15,7 @@ export const MODES: Record<Mode, { name: string; blurb: string; color: string; e
   },
   ultra: {
     name: 'Supreme Court',
-    blurb: 'Reuses open tabs, auto-closes duplicates, and closes tabs left idle too long.',
+    blurb: 'Reuses open tabs, auto-closes duplicates, and closes tabs left idle too long or left behind by apps like Zoom.',
     color: '#7c3aed',
     emoji: '🏛️',
   },
@@ -27,19 +27,22 @@ export const MODES: Record<Mode, { name: string; blurb: string; color: string; e
   },
 };
 
-export const modeDetails = (s: Pick<Settings, 'dedupeOnOpen' | 'duplicates' | 'inactive'>) => [
+export const modeDetails = (s: Pick<Settings, 'dedupeOnOpen' | 'duplicates' | 'inactive' | 'leftovers'>) => [
   `Same link again: ${s.dedupeOnOpen ? 'reuses the open tab' : 'opens a new tab'}`,
   `Duplicates: ${{ off: 'ignored', detect: 'flagged', auto: 'auto-closed' }[s.duplicates]}`,
   `Inactive tabs: ${{ off: 'ignored', detect: 'flagged', discard: 'put to sleep', close: 'closed' }[s.inactive]}`,
+  `Tabs left behind by apps: ${{ off: 'ignored', detect: 'flagged', close: 'closed' }[s.leftovers.level]}`,
 ];
 
-export const autoCleanLabel = (s: Pick<Settings, 'duplicates' | 'inactive'>) => {
+export const autoCleanLabel = (s: Pick<Settings, 'duplicates' | 'inactive' | 'leftovers'>) => {
   const actions = [
     s.duplicates === 'auto' && 'close duplicate tabs',
     s.inactive === 'discard' && 'put inactive tabs to sleep',
     s.inactive === 'close' && 'close inactive tabs',
+    s.leftovers.level === 'close' && 'close tabs left behind by apps',
   ].filter(Boolean);
-  return actions.length ? `Automatically ${actions.join(' and ')}` : 'Automatically clean up tabs';
+  const last = actions.pop();
+  return last ? `Automatically ${actions.length ? `${actions.join(', ')} and ` : ''}${last}` : 'Automatically clean up tabs';
 };
 
 export const SWATCHES: Record<string, string> = {

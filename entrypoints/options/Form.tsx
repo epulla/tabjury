@@ -14,6 +14,9 @@ export default function Form({
   const domainsKey = settings.protect.domains.join('\n');
   const [domainsDraft, setDomainsDraft] = useState(domainsKey);
   useEffect(() => setDomainsDraft(domainsKey), [domainsKey]);
+  const extraKey = settings.leftovers.extra.join('\n');
+  const [extraDraft, setExtraDraft] = useState(extraKey);
+  useEffect(() => setExtraDraft(extraKey), [extraKey]);
 
   return (
     <form>
@@ -182,6 +185,66 @@ export default function Form({
             onChange={(e) => setSettings(withChange(settings, { inactiveMinutes: Number(e.target.value) }))}
           />
         </label>
+      </fieldset>
+
+      <fieldset className="mt-6">
+        <legend className="font-semibold text-[var(--accent)]">Tabs left behind by apps</legend>
+        <p className="mt-1 text-xs text-gray-500">
+          Pages that hand a link to a desktop app (Zoom, Slack, Teams, Notion, Linear, Discord invites) and stay open
+          afterwards.
+        </p>
+        <label className="mt-2 block">
+          Left-behind tabs
+          <select
+            className="field ml-2"
+            value={settings.leftovers.level}
+            onChange={(e) =>
+              setSettings(
+                withChange(settings, {
+                  leftovers: { ...settings.leftovers, level: e.target.value as Settings['leftovers']['level'] },
+                }),
+              )
+            }
+          >
+            <option value="off">Off</option>
+            <option value="detect">Detect</option>
+            <option value="close">Auto-close</option>
+          </select>
+        </label>
+        <label className="mt-2 block">
+          Close after (seconds since you last looked at the tab){' '}
+          <input
+            className="field ml-2 w-20"
+            type="number"
+            min="5"
+            value={settings.leftovers.seconds}
+            onChange={(e) =>
+              setSettings(
+                withChange(settings, {
+                  leftovers: { ...settings.leftovers, seconds: Math.max(5, Number(e.target.value)) },
+                }),
+              )
+            }
+          />
+        </label>
+        <label className="mt-2 block">
+          More pages to treat as left behind (one per line, * matches anything, e.g. *.webex.com/meet/*)
+          <textarea
+            className="field mt-1 block w-full"
+            rows={3}
+            value={extraDraft}
+            onChange={(e) => setExtraDraft(e.target.value)}
+            onBlur={() => {
+              const extra = [...new Set(extraDraft.split('\n').map((line) => line.trim()).filter(Boolean))];
+              setExtraDraft(extra.join('\n'));
+              setSettings(withChange(settings, { leftovers: { ...settings.leftovers, extra } }));
+            }}
+          />
+        </label>
+        <p className="mt-2 text-xs text-gray-500">
+          Pinned, grouped, audio-playing and protected-site tabs are never closed. Auto-close only runs when automatic
+          cleanup is on.
+        </p>
       </fieldset>
 
       <fieldset className="mt-6">

@@ -9,6 +9,7 @@ export type Matching = {
   ignoreQuery: boolean;
 };
 export type Settings = {
+  leftovers: { level: 'off' | 'detect' | 'close'; seconds: number; extra: string[] };
   mode: Mode;
   customColor: string;
   dedupeOnOpen: boolean;
@@ -36,11 +37,11 @@ export type Settings = {
 
 export const PRESETS: Record<
   Exclude<Mode, 'custom'>,
-  Pick<Settings, 'dedupeOnOpen' | 'duplicates' | 'inactive' | 'autoClean'>
+  Pick<Settings, 'dedupeOnOpen' | 'duplicates' | 'inactive' | 'autoClean' | 'leftovers'>
 > = {
-  lite: { dedupeOnOpen: true, duplicates: 'detect', inactive: 'off', autoClean: false },
-  normal: { dedupeOnOpen: true, duplicates: 'detect', inactive: 'discard', autoClean: true },
-  ultra: { dedupeOnOpen: true, duplicates: 'auto', inactive: 'close', autoClean: true },
+  lite: { dedupeOnOpen: true, duplicates: 'detect', inactive: 'off', autoClean: false, leftovers: { level: 'detect', seconds: 30, extra: [] } },
+  normal: { dedupeOnOpen: true, duplicates: 'detect', inactive: 'discard', autoClean: true, leftovers: { level: 'detect', seconds: 30, extra: [] } },
+  ultra: { dedupeOnOpen: true, duplicates: 'auto', inactive: 'close', autoClean: true, leftovers: { level: 'close', seconds: 30, extra: [] } },
 };
 
 export const DEFAULTS: Settings = {
@@ -60,12 +61,12 @@ export const DEFAULTS: Settings = {
 };
 
 export function applyPreset(s: Settings, mode: Exclude<Mode, 'custom'>): Settings {
-  return { ...s, mode, ...PRESETS[mode] };
+  return { ...s, mode, ...PRESETS[mode], leftovers: { ...s.leftovers, level: PRESETS[mode].leftovers.level } };
 }
 
 export function withChange(s: Settings, patch: Partial<Settings>): Settings {
   const result = { ...s, ...patch } as Settings;
-  for (const key of ['matching', 'protect', 'auto', 'bin'] as const)
+  for (const key of ['matching', 'protect', 'auto', 'bin', 'leftovers'] as const)
     if (patch[key]) result[key] = { ...s[key], ...patch[key] } as never;
   if (result.inactive === 'close') result.closeMinutes = Math.max(5, result.closeMinutes);
   const preset = (Object.keys(PRESETS) as Array<Exclude<Mode, 'custom'>>).find(
@@ -90,6 +91,7 @@ const choices: Record<string, readonly string[]> = {
   dedupeScope: ['window', 'all'],
   crossWindow: ['focus', 'move'],
   detectScope: ['window', 'all'],
+  level: ['off', 'detect', 'close'],
 };
 
 export function migrate(raw: unknown): Settings {

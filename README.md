@@ -29,6 +29,7 @@ TabJury is a browser extension for Chrome and Firefox that helps you manage tab 
 - **Reuses open tabs** when you open the same link again.
 - **Finds duplicates** and flags or closes extra copies, depending on your court.
 - **Checks inactive tabs** and puts them to sleep or closes them according to your rules.
+- **Cleans up after desktop apps**, closing the tab a Zoom, Slack or Teams link leaves behind.
 - **Respects your protections**, keeping protected tabs out of automatic cleanup.
 - **Lets you call Recess** to pause tab reuse and scheduling of automatic cleanup.
 
@@ -76,7 +77,7 @@ testing.
 | --- | --- | --- |
 | Claims Court | `lite` | Reuses open tabs and flags duplicates. No automatic cleanup of existing tabs. |
 | Trial Court | `normal` | Reuses open tabs, flags duplicates, and puts inactive tabs to sleep. Never automatically closes existing tabs. |
-| Supreme Court | `ultra` | Reuses open tabs across windows, automatically closes extra duplicates, and closes tabs left idle past your limit. Inactive tabs can sleep before that limit. |
+| Supreme Court | `ultra` | Reuses open tabs across windows, automatically closes extra duplicates, and closes tabs left idle past your limit or left behind by apps. Inactive tabs can sleep before that limit. |
 | Your Court | `custom` | Lets you choose your own mix of reuse, detection, sleep, and closing rules in Settings. |
 
 **Trial Court is the default.** Automatic cleanup starts on in Trial Court and Supreme
@@ -116,6 +117,25 @@ Both timers are adjustable in Settings; Supreme Court also lets you change the c
 limit from the popup. Tabs without a reported last-used time are never automatically
 closed for being idle.
 
+### Left behind by apps
+
+Some links open a desktop app and leave a tab behind, like Zoom's "Launch Meeting" page.
+TabJury recognizes these pages once the app has taken over:
+
+- **Zoom:** meeting links after Zoom adds `#success` (the app launched). Meetings running
+  in the browser (`/wc/`) are never touched.
+- **Slack:** `archives/…`, `app_redirect` and `ssb/redirect` pages.
+- **Microsoft Teams:** the `dl/launcher/launcher.html` page.
+- **Notion:** `/native/…?deepLinkOpenNewTab=true` pages.
+- **Linear:** links with `noRedirect=1`.
+- **Discord:** invite pages.
+
+Claims Court and Trial Court flag them; Supreme Court closes them **30 seconds** after you
+last looked at the tab, without the usual cleanup wait. These tabs are closed even if they
+are the active tab or were used recently; pinned, grouped, audio-playing and protected-site
+tabs are still kept. If the tab is the last one in its window, TabJury opens a new tab first.
+Settings lets you change the delay and add your own pages, like `*.webex.com/meet/*`.
+
 ### Protected from automatic cleanup
 
 By default, TabJury keeps these tabs out of automatic closing and sleeping:
@@ -151,7 +171,7 @@ tab, close extra duplicates, put inactive tabs to sleep, or close selected tabs 
   entries**; old entries are pruned when another entry is added. Restore tries the
   browser's saved session first, then reopens the link if that session is unavailable.
 - **History:** see the latest **200 automatic cleanup actions**, with the tab, time,
-  and whether it was a duplicate or inactive. You can clear History and Recently closed
+  and whether it was a duplicate, inactive, or left behind by an app. You can clear History and Recently closed
   separately.
 
 ## Known limits
@@ -171,6 +191,8 @@ tab, close extra duplicates, put inactive tabs to sleep, or close selected tabs 
   it is needed to identify open tabs and their links.
 - Incognito access must be enabled manually. Tab reuse and duplicate matching never
   mix incognito tabs with normal tabs.
+- Discord invite pages have no "app opened" marker, so an invite you meant to accept in the
+  browser is closed too. Turn left-behind tabs to Detect if that matters to you.
 - Different content at the same link cannot be distinguished. Use protected websites,
   Recess, or the intentional-duplicate exceptions when you need separate copies.
 

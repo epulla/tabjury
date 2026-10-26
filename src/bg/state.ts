@@ -24,7 +24,7 @@ export const pendingActions = storage.defineItem<Action[]>('session:pendingActio
 export type HistoryEntry = {
   at: number;
   kind: 'close' | 'discard';
-  reason: 'duplicate' | 'inactive';
+  reason: 'duplicate' | 'inactive' | 'leftover';
   title: string;
   url: string;
 };

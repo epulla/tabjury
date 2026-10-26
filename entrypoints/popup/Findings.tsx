@@ -13,7 +13,7 @@ type Props = { findings: Findings; settings: Settings; onRefresh: () => Promise<
 
 export default function FindingsView({ findings, settings, onRefresh }: Props) {
   const [selected, setSelected] = useState<number[]>([]);
-  const close = async (tabs: Tab[], reason: 'duplicate' | 'inactive') => {
+  const close = async (tabs: Tab[], reason: 'duplicate' | 'inactive' | 'leftover') => {
     if (!tabs.length) return;
     for (const tab of tabs) await addToBin(tab as never, reason, settings);
     await browser.tabs.remove(tabs.map((tab) => tab.id!).filter(Boolean));
@@ -26,12 +26,14 @@ export default function FindingsView({ findings, settings, onRefresh }: Props) {
       .update(tab.id, { active: true })
       .then(() => browser.windows.update(tab.windowId!, { focused: true }));
   const dups = findings.dups,
-    inactive = findings.inactive;
+    inactive = findings.inactive,
+    leftovers = findings.leftovers;
   const duplicateTabs = dups.flatMap((group) => group.extras);
   const inactiveTabs = inactive.map((hit) => hit.tab);
+  const leftoverTabs = leftovers.map((hit) => hit.tab);
   const toggle = (id: number) =>
     setSelected((value) => (value.includes(id) ? value.filter((item) => item !== id) : [...value, id]));
-  const selectedTabs = [...duplicateTabs, ...inactiveTabs].filter((tab) => selected.includes(tab.id!));
+  const selectedTabs = [...duplicateTabs, ...inactiveTabs, ...leftoverTabs].filter((tab) => selected.includes(tab.id!));
   const keptReason = (tab: Tab) => {
     const classifiedTab = tab as ClassifiedTab;
     if (settings.protect.grouped && tab.groupId !== undefined && tab.groupId !== -1) return 'in a group';
@@ -132,7 +134,36 @@ export default function FindingsView({ findings, settings, onRefresh }: Props) {
           </ul>
         </section>
       )}
-      {!dups.length && !inactive.length && (
+      {leftovers.length > 0 && (
+        <section className="mt-3">
+          <header className="flex items-center justify-between">
+            <h2 className="font-semibold text-[var(--accent)]">Left behind by apps ({leftovers.length})</h2>
+            <button type="button" className="btn" onClick={() => close(leftoverTabs, 'leftover')}>
+              Close all
+            </button>
+          </header>
+          <ul className="mt-1 divide-y">
+            {leftovers.map((hit) => (
+              <li
+                key={hit.tab.id}
+                className="flex cursor-pointer items-center gap-2 rounded-md px-1 py-2 hover:bg-black/5"
+                onClick={() => focus(hit.tab)}
+              >
+                <input
+                  aria-label={`Select ${hit.tab.title ?? hit.tab.url}`}
+                  type="checkbox"
+                  checked={selected.includes(hit.tab.id!)}
+                  onClick={(event) => event.stopPropagation()}
+                  onChange={() => toggle(hit.tab.id!)}
+                />
+                <span className="min-w-0 flex-1 truncate">{hit.tab.title || hit.tab.url}</span>
+                <span className="whitespace-nowrap text-xs text-gray-500">{hit.app}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+      {!dups.length && !inactive.length && !leftovers.length && (
         <p className="py-8 text-center text-gray-500">{COPY.docketClear}</p>
       )}
       {selectedTabs.length > 0 && (
@@ -147,6 +178,10 @@ export default function FindingsView({ findings, settings, onRefresh }: Props) {
               close(
                 selectedTabs.filter((tab) => inactiveTabs.includes(tab)),
                 'inactive',
+              ),
+              close(
+                selectedTabs.filter((tab) => leftoverTabs.includes(tab)),
+                'leftover',
               ),
             ])
           }

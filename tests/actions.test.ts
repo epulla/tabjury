@@ -66,6 +66,7 @@ describe('actions', () => {
         at: 0,
         dups: [],
         inactive: [{ tab: { id: 7, url: 'https://a.com' } as Tab, native: false, stale: true, idleMs: 10 * 60_000 }],
+        leftovers: [],
       };
       const due = Date.now() + s.auto.graceSeconds * 1000;
       await schedule(findings, s);
@@ -103,5 +104,20 @@ describe('actions', () => {
     await pendingActions.setValue([{ kind: 'close', tabId: tab.id!, reason: 'duplicate' }]);
     await execute();
     expect(await historyItem.getValue()).toHaveLength(0);
+  });
+  it('closes valid leftover immediately, creates replacement before last tab, and bins it', async () => {
+    await settingsItem.setValue({ ...(await settingsItem.getValue()), autoClean: true, leftovers: { level: 'close', seconds: 0, extra: [] } });
+    const createTab = vi.spyOn(fakeBrowser.tabs, 'create');
+    const tab = await fakeBrowser.tabs.create({ url: 'https://zoom.us/j/123#success', active: false });
+    const findings = { ...(await scan()), leftovers: [{ tab: { ...tab, lastAccessed: 0 } as Tab, app: 'Zoom' }] };
+    fakeBrowser.tabs.query = vi.fn(async () => [{ ...tab, lastAccessed: 0 } as Tab]);
+    fakeBrowser.tabs.get = vi.fn(async () => ({ ...tab, lastAccessed: 0 } as Tab));
+    await pendingActions.setValue([{ kind: 'close', tabId: tab.id!, reason: 'leftover' }]);
+    await execute();
+    expect(fakeBrowser.alarms.create).not.toHaveBeenCalledWith('grace', expect.anything());
+    expect(createTab).toHaveBeenCalledTimes(2);
+    expect((await historyItem.getValue())[0]?.reason).toBe('leftover');
+    expect((await binItem.getValue())[0]?.reason).toBe('leftover');
+    expect(tab.id).toBeDefined();
   });
 });
