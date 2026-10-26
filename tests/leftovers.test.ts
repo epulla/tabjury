@@ -7,8 +7,10 @@ describe('findLeftovers', () => {
     ['https://zoom.us/j/123#success', 'Zoom'],
     ['https://zoom.us/j/123', undefined],
     ['https://zoom.us/wc/123#success', undefined],
-  ])('matches launcher URL %s', (url, app) => {
-    const result = findLeftovers([{ id: 1, url, lastAccessed: 1 } as never], DEFAULTS, 40_000);
+    ['https://abcom/x', undefined, ['a.com/*']],
+  ])('matches launcher URL %s', (url, app, extra = []) => {
+    const settings = { ...DEFAULTS, leftovers: { ...DEFAULTS.leftovers, extra } };
+    const result = findLeftovers([{ id: 1, url, lastAccessed: 1 } as never], settings, 40_000);
     expect(result[0]?.app).toBe(app);
   });
   it('matches extra globs and skips recently accessed tabs', () => {

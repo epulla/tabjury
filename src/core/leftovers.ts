@@ -21,7 +21,7 @@ export function findLeftovers(tabs: Tab[], s: Settings, now: number): { tab: Tab
     if (!app) {
       try {
         const parsed = new URL(url), target = `${parsed.host}${parsed.pathname}`;
-        if (s.leftovers.extra.some((glob) => new RegExp(`^${glob.replace(/[.+?^${}()|[\\]\\]/g, '\\$&').replace(/\*/g, '.*')}$`, 'i').test(target))) app = 'Custom';
+        if (s.leftovers.extra.some((glob) => new RegExp(`^${glob.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*')}$`, 'i').test(target))) app = 'Custom';
       } catch { /* Invalid URL cannot match a host/path glob. */ }
     }
     return app ? [{ tab, app }] : [];
