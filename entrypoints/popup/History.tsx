@@ -25,7 +25,7 @@ export default function History({
               <span className="min-w-0 flex-1">
                 <span className="block truncate">{entry.title || entry.url}</span>
                 <span className="block text-xs text-gray-500">
-                  {labels[entry.kind]} · {entry.reason === 'duplicate' ? 'duplicate' : 'idle'}
+                  {labels[entry.kind]} · {{ duplicate: 'duplicate', inactive: 'idle', leftover: 'left behind by an app' }[entry.reason]}
                 </span>
               </span>
               <span className="shrink-0 text-xs text-gray-500">{timeAgo(entry.at)}</span>

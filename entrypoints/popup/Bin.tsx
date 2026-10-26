@@ -7,6 +7,7 @@ const reasonLabels: Record<BinEntry['reason'], string> = {
   dedupe: 'reused open tab',
   duplicate: 'duplicate',
   inactive: 'idle',
+  leftover: 'left behind by an app',
   manual: 'closed by you',
 };
 

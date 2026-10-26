@@ -39,7 +39,7 @@ https://github.com/babraham123/app-tab-cleaner)."
       scanner reports leftovers in findings and badge; `autoOn` includes
       leftovers; leftover actions run without grace; last tab in window gets a new tab first;
       Recently closed and History accept the new reason. Check: `pnpm test tests/policy.test.ts tests/actions.test.ts tests/scanner.test.ts`.
-- [ ] UI and docs: popup "Left behind by apps" findings section, Settings level/seconds/custom
+- [x] UI and docs: popup "Left behind by apps" findings section, Settings level/seconds/custom
       patterns in `entrypoints/options/Form.tsx`, README "How the jury decides" + Known limits,
       `PRIVACY.md` if needed. Check: `pnpm compile` and a look at popup/options in `pnpm dev`.
 - [ ] Verify and clean up: `pnpm compile && pnpm test`; manual: in Supreme Court open a Zoom

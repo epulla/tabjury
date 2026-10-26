@@ -269,7 +269,7 @@ export default function App() {
                 )}
               </div>
             )}
-            {settings.duplicates !== 'off' || settings.inactive !== 'off' ? (
+            {settings.duplicates !== 'off' || settings.inactive !== 'off' || settings.leftovers.level !== 'off' ? (
               <Findings findings={findings} settings={settings} onRefresh={refresh} />
             ) : (
               <p className="py-8 text-center text-gray-500">{COPY.docketClear}</p>
