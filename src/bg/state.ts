@@ -2,7 +2,11 @@ import { storage } from 'wxt/utils/storage';
 import { DEFAULTS, migrate, type Settings } from '../core/settings';
 import type { Action } from '../core/policy';
 
-export const settingsItem = storage.defineItem<Settings>('sync:settings', { fallback: DEFAULTS });
+export const settingsItem = storage.defineItem<Settings>('sync:settings', {
+  fallback: DEFAULTS,
+  version: 2,
+  migrations: { 2: migrate },
+});
 export async function getSettings(): Promise<Settings> {
   return migrate(await settingsItem.getValue());
 }

@@ -57,7 +57,8 @@ Before finishing a change, run `pnpm compile && pnpm test`. The repo has no lint
   when it is on (`autoOn`).
 - Ultra always reuses the open tab. Only pause and protected domains let a duplicate open.
 - Settings live in `sync:settings`. When you add or remove a field, update `DEFAULTS` and
-  confirm that `migrate` handles the old stored shape.
+  confirm that `migrate` handles the old stored shape. Bump `version` on `settingsItem` and add
+  `migrate` under the new key in `migrations`; the UI reads stored settings without `migrate`.
 - Protected tabs (active, pinned, audible, grouped, recently used, domains) are never closed
   or discarded automatically.
 
