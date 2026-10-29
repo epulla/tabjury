@@ -86,11 +86,15 @@ describe('policy', () => {
         0,
       ),
     ).toHaveLength(2));
-  it('closes leftover while bypassing active and recent protection, but keeps pinned tabs', () => {
-    expect(decide([], [], settings({ leftovers: { ...DEFAULTS.leftovers, level: 'close' }, protect: { ...DEFAULTS.protect, active: true, recentMinutes: 5 } }), 100_000, [
+  it('closes leftover while bypassing active, recent and group protection, but keeps pinned tabs', () => {
+    expect(decide([], [], settings({ leftovers: { ...DEFAULTS.leftovers, level: 'close' }, protect: { ...DEFAULTS.protect, active: true, grouped: true, recentMinutes: 5 } }), 100_000, [
       { tab: tab({ id: 11, active: true, lastAccessed: 1 }), app: 'Zoom' },
       { tab: tab({ id: 12, pinned: true }), app: 'Slack' },
-    ])).toEqual([{ kind: 'close', tabId: 11, reason: 'leftover' }]);
+      { tab: tab({ id: 13, groupId: 4 }), app: 'Zoom' },
+    ])).toEqual([
+      { kind: 'close', tabId: 11, reason: 'leftover' },
+      { kind: 'close', tabId: 13, reason: 'leftover' },
+    ]);
   });
   it('does not close leftovers in detect mode', () => expect(decide([], [], DEFAULTS, 0, [{ tab: tab(), app: 'Zoom' }])).toEqual([]));
 });
