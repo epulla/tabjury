@@ -242,7 +242,7 @@ export default function Form({
           />
         </label>
         <p className="mt-2 text-xs text-gray-500">
-          Pinned, grouped, audio-playing and protected-site tabs are never closed. Auto-close only runs when automatic
+          Pinned, audio-playing and protected-site tabs are never closed. Tabs in a group are still closed. Auto-close only runs when automatic
           cleanup is on.
         </p>
       </fieldset>

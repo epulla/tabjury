@@ -27,7 +27,7 @@ export function decide(dups: DupGroup[], inactive: InactiveHit[], s: Settings, n
     }
   if (s.leftovers.level === 'close')
     for (const { tab } of leftovers) {
-      const protection = { ...s, protect: { ...s.protect, active: false, recentMinutes: 0 } };
+      const protection = { ...s, protect: { ...s.protect, active: false, grouped: false, recentMinutes: 0 } };
       if (tab.id === undefined || seen.has(tab.id) || isProtected(tab, protection, now)) continue;
       actions.push({ kind: 'close', tabId: tab.id, reason: 'leftover' });
       seen.add(tab.id);
