@@ -1,4 +1,5 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
+import { fakeBrowser } from 'wxt/testing/fake-browser';
 import { DEFAULTS, PRESETS, applyPreset, migrate, withChange } from '../src/core/settings';
 
 describe('settings', () => {
@@ -48,5 +49,18 @@ describe('settings', () => {
   it('updates stored ultra rules without changing auto-clean', () => {
     const result = migrate({ ...DEFAULTS, mode: 'ultra', inactive: 'discard', autoClean: false });
     expect(result).toMatchObject({ mode: 'ultra', inactive: 'close', autoClean: false });
+  });
+});
+
+describe('stored settings', () => {
+  it('upgrades settings saved before leftovers existed', async () => {
+    fakeBrowser.reset();
+    const { leftovers: _, ...old } = { ...DEFAULTS, mode: 'ultra' as const, inactiveMinutes: 42 };
+    await fakeBrowser.storage.sync.set({ settings: old });
+    vi.resetModules();
+    const { settingsItem } = await import('../src/bg/state');
+    const stored = await settingsItem.getValue();
+    expect(stored.leftovers).toEqual(PRESETS.normal.leftovers);
+    expect(stored).toMatchObject({ mode: 'ultra', inactiveMinutes: 42 });
   });
 });
