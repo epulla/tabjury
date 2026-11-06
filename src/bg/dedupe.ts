@@ -37,6 +37,11 @@ async function handle(tab: Tab, url: string): Promise<void> {
     key = normalizeUrl(url, s.matching);
   if (!s.dedupeOnOpen || !key) return;
   if (onProtectedDomain(new URL(key).hostname, s.protect.domains)) return;
+  if (s.protect.grouped) {
+    // event tab may predate a tabs.group() call, so read the live groupId
+    const live = await browser.tabs.get(tab.id).catch(() => undefined);
+    if (!live || (live.groupId ?? -1) !== -1) return;
+  }
   const scope = s.mode === 'ultra' ? 'all' : s.dedupeScope;
   const tabs = await browser.tabs.query(scope === 'window' ? { windowId: tab.windowId } : {});
   const same = (t: Tab) =>

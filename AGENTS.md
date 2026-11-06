@@ -55,7 +55,8 @@ Before finishing a change, run `pnpm compile && pnpm test`. The repo has no lint
   settings through `applyPreset` or `withChange`, never by spreading raw objects.
 - `autoClean` switch: on by default in Normal and Ultra, off in Custom. Automatic close/discard only runs
   when it is on (`autoOn`).
-- Ultra always reuses the open tab. Only pause and protected domains let a duplicate open.
+- Ultra always reuses the open tab. Only pause, protected domains and grouped new tabs
+  (`protect.grouped`) let a duplicate open.
 - Settings live in `sync:settings`. When you add or remove a field, update `DEFAULTS` and
   confirm that `migrate` handles the old stored shape. Bump `version` on `settingsItem` and add
   `migrate` under the new key in `migrations`; the UI reads stored settings without `migrate`.

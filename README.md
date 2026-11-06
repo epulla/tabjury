@@ -100,8 +100,9 @@ or move the existing tab into yours.
 Lite, Normal, and Custom allow intentional duplicates when you use the browser's
 Duplicate Tab action or open the same link again within 15 seconds after a reuse
 ("two strikes"). Outside Ultra, the popup also briefly offers **Open as new tab anyway**.
-Supreme Court always reuses a matching open tab, except during Recess or for protected
-websites. Turning automatic cleanup off does not turn tab reuse off.
+Supreme Court always reuses a matching open tab, except during Recess, for protected
+websites, or when the new tab is in a tab group. Turning automatic cleanup off does not
+turn tab reuse off.
 
 ### Left unused
 
@@ -147,7 +148,8 @@ By default, TabJury keeps these tabs out of automatic closing and sleeping:
 - Tabs used in the last **5 minutes**.
 
 These protections are configurable. You can also add protected websites in Settings;
-those sites are exempt from automatic cleanup and tab reuse.
+those sites are exempt from automatic cleanup and tab reuse. While tabs in groups are
+protected, a new tab that opens in a group is never replaced by tab reuse, in any mode.
 
 Protections apply to automatic cleanup. Manual **Close** and **Discard** controls in
 the popup act on the tabs you choose.

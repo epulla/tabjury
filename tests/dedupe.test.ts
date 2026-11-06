@@ -3,15 +3,19 @@ import { fakeBrowser } from 'wxt/testing/fake-browser';
 import { registerDedupe } from '../src/bg/dedupe';
 import { pausedUntil, recentlyDeduped, settingsItem } from '../src/bg/state';
 import { binItem, restore } from '../src/bg/bin';
+import { applyPreset } from '../src/core/settings';
 
 // fakeBrowser.reset() does not restore stubbed methods; capture originals once
 const realQuery = fakeBrowser.tabs.query.bind(fakeBrowser.tabs);
 const realCreate = fakeBrowser.tabs.create.bind(fakeBrowser.tabs);
+const realGet = fakeBrowser.tabs.get.bind(fakeBrowser.tabs);
 let forcedActive = new Set<number>();
 beforeEach(async () => {
   fakeBrowser.reset();
   forcedActive = new Set();
   vi.stubGlobal('browser', fakeBrowser);
+  // fake tabs default to groupId 0; real ungrouped tabs report -1
+  fakeBrowser.tabs.get = vi.fn(async (id) => ({ ...(await realGet(id)), groupId: -1 }));
   fakeBrowser.windows.update = vi.fn();
   fakeBrowser.action.setBadgeText = vi.fn();
   fakeBrowser.alarms.create = vi.fn();
@@ -105,6 +109,15 @@ describe('dedupe', () => {
     const b = await open('https://a.com', { windowId: 1 });
     await fakeBrowser.tabs.onUpdated.trigger(b.id!, { url: b.url }, b);
     expect((await fakeBrowser.tabs.query({})).map((tab) => tab.id)).toEqual([a.id]);
+  });
+  it.each(['lite', 'normal', 'ultra'] as const)('keeps grouped tab in %s mode', async (mode) => {
+    await settingsItem.setValue(applyPreset(settingsItem.fallback, mode));
+    const a = await open('https://x.com/p', { active: true });
+    fakeBrowser.tabs.get = vi.fn(async (id) => ({ ...(await realGet(id)), groupId: id === a.id ? -1 : 7 }));
+    const b = await open('https://x.com/p');
+    await fakeBrowser.tabs.onUpdated.trigger(b.id!, { url: b.url }, b);
+    await fakeBrowser.tabs.onUpdated.trigger(b.id!, { status: 'complete' }, b);
+    expect((await fakeBrowser.tabs.query({})).some((tab) => tab.id === b.id)).toBe(true);
   });
   it('restores bin entry', async () => {
     const tab = await open('https://x.com/p');
